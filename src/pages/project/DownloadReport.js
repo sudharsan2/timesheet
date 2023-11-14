@@ -63,10 +63,22 @@ export default function DownloadReport() {
     setReport(e.target.value);
   };
 
+  // const handleDownload = () => {
+  //   setLoading(true);
+  //   setDownloadDate(String(`${mome}${yearSlice}`));
+  //   dispatch(downloadLOPReportAsync(String(`${mome}/${yearSlice}`)));
+  // };
+
   const handleDownload = () => {
     setLoading(true);
     setDownloadDate(String(`${mome}${yearSlice}`));
-    dispatch(downloadLOPReportAsync(String(`${mome}/${yearSlice}`)));
+    dispatch(downloadLOPReportAsync(String(`${mome}/${yearSlice}`)))
+      .then(() => {
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('API call failed:', error);
+      });
   };
 
   React.useEffect(() => {

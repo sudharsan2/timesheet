@@ -47,15 +47,15 @@ import {
   getDesignationsListFromUser,
   getErrorFromUser,
   getPostProjectAsync,
-  setErrorNull,
-  getMsgFromUser,
-  setMsgNull
+  getMsgFromUser
 } from '../../redux/slices/userSlice';
-import { postProjectDetailsAsync } from '../../redux/slices/projectSlice';
+import { postProjectDetailsAsync, setErrorNull, setMsgNull } from '../../redux/slices/projectSlice';
 import { getAllProjectsAsync } from '../../redux/slices/projSlice';
 import { getProjectLOVFromTS } from '../../redux/slices/timesheetSlice';
 import { getAllGroupsAsync, getAllUsersFromGroups } from '../../redux/slices/timesheetSettingsSlice';
 import { MIconButton } from '../../components/@material-extend';
+
+/* eslint-disable */
 
 // ----------------------------------------------------------------------
 
@@ -78,8 +78,10 @@ export default function OnsiteProject() {
   console.log('projectt', onsites);
   const { users } = useSelector((state) => state.user);
   console.log('First', users);
-  const error = useSelector(getErrorFromUser);
-  const msg = useSelector(getMsgFromUser);
+  const error = useSelector((state) => state.project.error);
+  console.log('errors', error);
+  const msg = useSelector((state) => state.project.msg);
+  console.log('444', msg);
   const { projects: userList } = useSelector((state) => state.proj);
   const { projects } = useSelector((state) => state.proj);
   console.log('list', userList);
@@ -89,6 +91,18 @@ export default function OnsiteProject() {
 
   const status = [{ value: 'Shadow ' }, { value: 'Direct ' }];
 
+  const accommodate = [{ value: 'Yes' }, { value: 'No' }];
+
+  const [allowance, setAllowance] = useState(''); // Initial value set to 'No'
+  const [advanced_paid, setAdvancedPaid] = useState('');
+
+  // const handleAllowanceChange = (event) => {
+  //   setAllowance(event.target.value);
+  // };
+
+  const handleAdvancedPaid = (event) => {
+    setAdvancedPaid(event.target.value);
+  };
   /**
    * Get user from array
    */
@@ -107,27 +121,24 @@ export default function OnsiteProject() {
     accomadation: Yup.string().required('Accommodation is required'),
     travel_Arrangement: Yup.string().required('Travel Arrangement is required'),
     onsite_Allowance: Yup.string().required('OnSite Allowance is required'),
-    kra: Yup.string().required('KRA is required'),
+    // kra: Yup.string().required('KRA is required'),
     contact_Name: Yup.string().required('Contact Name is required'),
     contact_Number: Yup.number().required('Contact Number is required'),
-    mail: Yup.string().email('Email must be a valid email address').required('Email is required')
+    mail: Yup.string().email('Email must be a valid email address').required('Email is required'),
+    address: Yup.string().required('Address is required'),
+    advanced_paid: Yup.string().required('Advanced Paid is required')
   });
 
-  // const NewUserSchema = Yup.object().shape({
-  //   primary_Project: Yup.string().required('Primary Project is required'),
-  //   client_Name: Yup.string().required('Client Name is required'),
-  //   location: Yup.string().required('Location is required'),
-  //   support_Type: Yup.string().required('Support Type is required'),
-  //   assigned_by: Yup.string().required('Assigned By is required'),
-  //   assigned_to: Yup.string().required('Assigned To is required'),
-  //   description: Yup.string().required('Description is required'),
-  //   priority: Yup.string().required('Priority is required'),
-  //   status: Yup.string().required('Status is required'),
-  //   remarks: Yup.string().required('Remarks is required')
-  // });
+  const initialValues = {
+    onsite_Allowance: 'Yes',
+    allowance_amount: '',
+    advanced_paid: 'Yes',
+    advance_amount: ''
+  };
 
   const formik = useFormik({
     enableReinitialize: true,
+    initialValues,
     initialValues: {
       user_id: userDetails.id || '',
       primary_Project: onsites.primary_Project || '',
@@ -140,10 +151,14 @@ export default function OnsiteProject() {
       accomadation: onsites.accomadation || '',
       travel_Arrangement: onsites.travel_Arrangement || '',
       onsite_Allowance: onsites.onsite_Allowance || '',
-      kra: onsites.kra || '',
+      // kra: onsites.kra || '',
       contact_Name: onsites.contact_Name || '',
       contact_Number: onsites.contact_Number || '',
-      mail: onsites.mail || ''
+      mail: onsites.mail || '',
+      address: onsites.address || '',
+      allowance_amount: onsites.allowance_amount || '',
+      advanced_paid: onsites.advanced_paid || '',
+      advance_amount: onsites.advance_amount || ''
     },
     validationSchema: NewUserSchema,
     onSubmit: async (values, { setSubmitting, setErrors }) => {
@@ -161,19 +176,27 @@ export default function OnsiteProject() {
           accomadation: values.accomadation,
           travel_Arrangement: values.travel_Arrangement,
           onsite_Allowance: values.onsite_Allowance,
-          kra: values.kra,
+          // kra: values.kra,
           contact_Name: values.contact_Name,
           contact_Number: values.contact_Number,
-          mail: values.mail
+          mail: values.mail,
+          address: values.address,
+          allowance_amount: values.allowance_amount,
+          advanced_paid: values.advanced_paid,
+          advance_amount: values.advance_amount
         };
         await dispatch(postProjectDetailsAsync(payload));
 
         setSubmitting(false);
-        enqueueSnackbar('Updated successfully', { variant: 'success' });
+        // enqueueSnackbar('Updated successfully', { variant: 'success' });
+        // enqueueSnackbar('Updated successfully', { variant: 'success' });
+        // enqueueSnackbar('Updated successfully', {
+        //   autoHideDuration: 2000,
+        //   variant: 'success'
+        // });
       } catch (error) {
         console.error(error);
         setSubmitting(false);
-        enqueueSnackbar('Update failed', { variant: 'error' });
         setErrors(error);
       }
       // navigate(PATH_DASHBOARD.task.taskAssigned);
@@ -182,6 +205,14 @@ export default function OnsiteProject() {
 
   const handleStartDate = (value) => {
     setStartDate(value);
+  };
+
+  const handleAllowanceChange = (event) => {
+    formik.setFieldValue('onsite_Allowance', event.target.value);
+  };
+
+  const handleAdvancedPaidChange = (event) => {
+    formik.setFieldValue('advanced_paid', event.target.value);
   };
 
   const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
@@ -224,7 +255,7 @@ export default function OnsiteProject() {
 
   useEffect(() => {
     if (error) {
-      enqueueSnackbar(error, {
+      enqueueSnackbar('Unable to Update', {
         variant: 'error',
         action: (key) => (
           <MIconButton size="small" onClick={() => closeSnackbar(key)}>
@@ -239,14 +270,27 @@ export default function OnsiteProject() {
 
   useEffect(() => {
     if (msg) {
-      enqueueSnackbar(msg, { variant: 'success' });
+      enqueueSnackbar(msg, {
+        variant: 'success'
+      });
+
       dispatch(setMsgNull());
-      // setSelectedDesignation('');
-      // setFieldValue('designation', '');
-      // resetForm();
-      // setFieldValue('is_bulk_upload', false);
-      // setFieldValue('designation', '');
-      // setFieldValue('password', createPassword(numbers + upperCaseLetters + lowerCaseLetters + specialCharacters));
+      setFieldValue('primary_Project', '');
+      setFieldValue('client_Name', '');
+      setFieldValue('location', '');
+      setFieldValue('support_Type', '');
+      setFieldValue('duration', '');
+      setFieldValue('project_Manager', '');
+      setFieldValue('accomadation', '');
+      setFieldValue('travel_Arrangement', '');
+      setFieldValue('onsite_Allowance', '');
+      // setFieldValue('kra', '');
+      setFieldValue('contact_Name', '');
+      setFieldValue('contact_Number', '');
+      setFieldValue('mail', '');
+      setFieldValue('reporting_date', '');
+      setFieldValue('address', '');
+      setFieldValue('advanced_paid', '');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [msg]);
@@ -255,19 +299,6 @@ export default function OnsiteProject() {
     console.log('this is param value', userDetails.id);
     dispatch(getPostProjectAsync(userDetails.id));
   }, []);
-
-  useEffect(() => {
-    if (msg) {
-      enqueueSnackbar(msg, { variant: 'success' });
-      dispatch(setMsgNull());
-      // setSelectedDesignation('');
-      // setFieldValue('designation', '');
-      // resetForm();
-      // setFieldValue('is_bulk_upload', false);
-      // setFieldValue('designation', '');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [msg]);
 
   return (
     <Page title={title}>
@@ -385,6 +416,9 @@ export default function OnsiteProject() {
                           {...formik.getFieldProps('reporting_date')}
                           error={Boolean(formik.touched.reporting_date && formik.errors.reporting_date)}
                           helperText={formik.touched.reporting_date && formik.errors.reporting_date}
+                          inputProps={{
+                            min: new Date().toISOString().split('T')[0]
+                          }}
                         />
                       </Grid>
                       <TextField
@@ -417,38 +451,79 @@ export default function OnsiteProject() {
                       </FormControl>
                     </Stack>
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
-                      <TextField
+                      {/* <TextField
                         size="small"
                         fullWidth
                         label="Accommodation"
                         {...getFieldProps('accomadation')}
                         error={Boolean(touched.accomadation && errors.accomadation)}
                         helperText={touched.accomadation && errors.accomadation}
-                      />
-                      <TextField
+                      /> */}
+                      <FormControl fullWidth>
+                        <InputLabel id="accomodation-Project-label" sx={{}}>
+                          Accommodation
+                        </InputLabel>
+                        <Select
+                          size="small"
+                          fullWidth
+                          labelId="accomodation-Project-label"
+                          id="accomodation-select"
+                          label="Accommodation"
+                          name="Accommodation"
+                          {...getFieldProps('accomadation')}
+                          error={Boolean(touched.accomadation && errors.accomadation)}
+                          helperText={touched.accomadation && errors.accomadation}
+                          MenuProps={MenuProps}
+                        >
+                          <MenuItem value="Arranged">Arranged</MenuItem>
+                          <MenuItem value="Not Arranged">Not Arranged</MenuItem>
+                        </Select>
+                      </FormControl>
+                      {/* <TextField
                         size="small"
                         fullWidth
                         label="Travel arrangement"
                         {...getFieldProps('travel_Arrangement')}
                         error={Boolean(touched.travel_Arrangement && errors.travel_Arrangement)}
                         helperText={touched.travel_Arrangement && errors.travel_Arrangement}
-                      />
-                      <TextField
+                      /> */}
+                      <FormControl fullWidth>
+                        <InputLabel id="travel-Project-label" sx={{}}>
+                          Travel
+                        </InputLabel>
+                        <Select
+                          size="small"
+                          fullWidth
+                          labelId="travel-Project-label"
+                          id="travel-select"
+                          label="Travel"
+                          name="Travel"
+                          {...getFieldProps('travel_Arrangement')}
+                          error={Boolean(touched.travel_Arrangement && errors.travel_Arrangement)}
+                          helperText={touched.travel_Arrangement && errors.travel_Arrangement}
+                          MenuProps={MenuProps}
+                        >
+                          <MenuItem value="Train">Train</MenuItem>
+                          <MenuItem value="Bus">Bus</MenuItem>
+                          <MenuItem value="Air">Air</MenuItem>
+                        </Select>
+                      </FormControl>
+                      {/* <TextField
                         size="small"
                         fullWidth
                         label="OSA"
                         {...getFieldProps('onsite_Allowance')}
                         error={Boolean(touched.onsite_Allowance && errors.onsite_Allowance)}
                         helperText={touched.onsite_Allowance && errors.onsite_Allowance}
-                      />
-                      <TextField
+                      /> */}
+                      {/* <TextField
                         size="small"
                         fullWidth
                         label="KRA"
                         {...getFieldProps('kra')}
                         error={Boolean(touched.kra && errors.kra)}
                         helperText={touched.kra && errors.kra}
-                      />{' '}
+                      />{' '} */}
                     </Stack>
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
                       <TextField
@@ -476,6 +551,104 @@ export default function OnsiteProject() {
                         error={Boolean(touched.mail && errors.mail)}
                         helperText={touched.mail && errors.mail}
                       />
+                    </Stack>
+                    <stack>
+                      <TextField
+                        size="small"
+                        fullWidth
+                        label="Address"
+                        {...getFieldProps('address')}
+                        error={Boolean(touched.address && errors.address)}
+                        helperText={touched.address && errors.address}
+                      />
+                    </stack>
+                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
+                      <FormControl fullWidth>
+                        <InputLabel id="allowance-Project-label" sx={{}}>
+                          Allowance
+                        </InputLabel>
+                        <Select
+                          size="small"
+                          fullWidth
+                          labelId="allowance-Project-label"
+                          id="allowance-select"
+                          label="Allowance"
+                          name="onsite_Allowance"
+                          value={formik.values.onsite_Allowance}
+                          onChange={handleAllowanceChange}
+                        >
+                          <MenuItem value="Yes">Yes</MenuItem>
+                          <MenuItem value="No">No</MenuItem>
+                        </Select>
+                        {touched.onsite_Allowance && errors.onsite_Allowance && (
+                          <FormHelperText error>{errors.onsite_Allowance}</FormHelperText>
+                        )}
+                      </FormControl>
+                      {/* <TextField
+                        size="small"
+                        fullWidth
+                        label="Allowance Amount"
+                        {...getFieldProps('allowance_amount')}
+                        error={Boolean(touched.allowance_amount && errors.allowance_amount)}
+                        helperText={touched.allowance_amount && errors.allowance_amount}
+                        disabled={allowance === 'No'}
+                      /> */}
+
+                      <TextField
+                        size="small"
+                        fullWidth
+                        label="Allowance Amount"
+                        {...formik.getFieldProps('allowance_amount')}
+                        error={Boolean(formik.touched.allowance_amount && formik.errors.allowance_amount)}
+                        helperText={formik.touched.allowance_amount && formik.errors.allowance_amount}
+                        disabled={formik.values.onsite_Allowance === 'No'}
+                      />
+
+                      {formik.touched.allowance && formik.errors.allowance && (
+                        <FormHelperText error>{formik.errors.allowance}</FormHelperText>
+                      )}
+                      <FormControl fullWidth>
+                        <InputLabel id="advanced_paid-Project-label" sx={{}}>
+                          Advanced Paid
+                        </InputLabel>
+                        <Select
+                          size="small"
+                          fullWidth
+                          labelId="advanced_paid-Project-label"
+                          id="advanced_paid-select"
+                          label=" Advanced Paid"
+                          name="advanced_paid"
+                          value={formik.values.advanced_paid}
+                          onChange={handleAdvancedPaidChange}
+                        >
+                          <MenuItem value="yes">Yes</MenuItem>
+                          <MenuItem value="no">No</MenuItem>
+                        </Select>
+                        {touched.advanced_paid && errors.advanced_paid && (
+                          <FormHelperText error>{errors.advanced_paid}</FormHelperText>
+                        )}
+                      </FormControl>
+                      {/* <TextField
+                        size="small"
+                        fullWidth
+                        label="Advanced Amount"
+                        {...getFieldProps('advance_amount')}
+                        error={Boolean(touched.advance_amount && errors.advance_amount)}
+                        helperText={touched.advance_amount && errors.advance_amount}
+                      /> */}
+                      <TextField
+                        size="small"
+                        fullWidth
+                        label="Advance Amount"
+                        {...formik.getFieldProps('advance_amount')}
+                        error={Boolean(formik.touched.advance_amount && formik.errors.advance_amount)}
+                        helperText={formik.touched.advance_amount && formik.errors.advance_amount}
+                        disabled={formik.values.advanced_paid === 'no'}
+                      />
+
+                      {formik.touched.advanced_paid && formik.errors.advanced_paid && (
+                        <FormHelperText error>{formik.errors.advanced_paid}</FormHelperText>
+                      )}
                     </Stack>
                     <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                       <LoadingButton type="submit" variant="contained" loading={isSubmitting || isLoading}>

@@ -37,6 +37,8 @@ import { MIconButton } from '../../components/@material-extend';
 
 // import { confirmPassword } from '~/redux/actions/authenticationAction';
 
+/* eslint-disable */
+
 const RootStyle = styled(Page)(({ theme }) => ({
   display: 'flex',
   minHeight: '100%',
@@ -70,6 +72,7 @@ export default function Acknowledge() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [jtoken, setJToken] = useState('');
+  const [error, setError] = useState();
   const [empId, setEmpId] = useState('');
   const [oldId, setOldId] = useState('');
   const [newId, setNewId] = useState('');
@@ -87,7 +90,7 @@ export default function Acknowledge() {
   useEffect(() => {
     axios
       .get(
-        `http://localhost:8080/techstep/auth/service/postAck/${resetToken}/${employeeId}/${oldManagerId}/${newManagerId}`,
+        `https://techstephub.focusrtech.com:6060/techstep/auth/service/postAck/${resetToken}/${employeeId}/${oldManagerId}/${newManagerId}`,
         {
           headers: {
             'Content-Type': 'application/json'
@@ -100,6 +103,7 @@ export default function Acknowledge() {
       })
       .catch((err) => {
         console.log('Error', err);
+        setError(err);
       });
 
     console.log('local stroage', JSON.parse(localStorage.getItem('Details')));
@@ -117,13 +121,16 @@ export default function Acknowledge() {
         <CssBaseline />
         <Card>
           <div className={classes.paper}>
-            {/* <Avatar
-              sx={{ width: '20%', height: '20%' }}
-              src={`${process.env.PUBLIC_URL}/static/icons/animation_ll0urdml_large.gif`}
-            /> */}
             <Avatar
-              sx={{ width: '10%', height: '10%' }}
-              src={`${process.env.PUBLIC_URL}/static/icons/animation_ll196430_large.gif`}
+              sx={{ width: '20%', height: '20%' }}
+              // src={`${process.env.PUBLIC_URL}/static/icons/animation_ll0urdml_large.gif`}
+              src={
+                jtoken
+                  ? `${process.env.PUBLIC_URL}/static/icons/animation_ll0urdml_large.gif`
+                  : error
+                  ? `${process.env.PUBLIC_URL}/static/icons/error_icon.png`
+                  : ''
+              }
             />
             <Typography component="h1" variant="h5">
               {jtoken}

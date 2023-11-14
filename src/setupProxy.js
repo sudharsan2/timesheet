@@ -4,7 +4,7 @@ module.exports = (app) => {
   app.use(
     '/techstep/api',
     createProxyMiddleware({
-      target: 'https://techstephub.focusrtech.com:5050',
+      target: 'https://techstephub.focusrtech.com:6060',
       changeOrigin: true
     })
   );

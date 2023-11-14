@@ -3,6 +3,13 @@ import ManageAccountsSharpIcon from '@mui/icons-material/ManageAccountsSharp';
 
 import ConnectingAirportsOutlinedIcon from '@mui/icons-material/ConnectingAirportsOutlined';
 
+import AssuredWorkloadOutlinedIcon from '@mui/icons-material/AssuredWorkloadOutlined';
+
+import AddTaskSharpIcon from '@mui/icons-material/AddTaskSharp';
+
+import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import ReviewsIcon from '@mui/icons-material/Reviews';
+
 // routes
 // eslint-disable-next-line import/named
 import { PATH_DASHBOARD } from '../../routes/paths';
@@ -61,7 +68,7 @@ export const sidebarConfig = [
       {
         title: 'timesheet',
         path: PATH_DASHBOARD.timesheet.root,
-        icon: ICONS.user,
+        icon: <PersonAddAltIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'Entry', path: PATH_DASHBOARD.timesheet.timesheet },
           { title: 'Reports', path: PATH_DASHBOARD.timesheet.reports },
@@ -79,13 +86,42 @@ export const sidebarConfig = [
     ]
   },
 
+  // {
+  //   subheader: 'WFH Request',
+  //   items: [
+  //     {
+  //       title: 'WFH Request',
+  //       path: PATH_DASHBOARD.travel.root,
+  //       icon: <AssuredWorkloadOutlinedIcon sx={{ fontSize: 19 }} />,
+  //       children: [
+  //         {
+  //           title: 'request',
+  //           path: PATH_DASHBOARD.travel.reqWFH
+  //         },
+  //         {
+  //           title: 'request approval',
+  //           path: PATH_DASHBOARD.travel.requestApproval
+  //         },
+  //         {
+  //           title: 'task entry',
+  //           path: PATH_DASHBOARD.travel.eodStatus
+  //         },
+  //         {
+  //           title: 'task review',
+  //           path: PATH_DASHBOARD.travel.reviewStatus
+  //         }
+  //       ]
+  //     }
+  //   ]
+  // },
+
   {
     subheader: 'travel request',
     items: [
       {
         title: 'travel request',
         path: PATH_DASHBOARD.travel.root,
-        icon: <ConnectingAirportsOutlinedIcon />,
+        icon: <ConnectingAirportsOutlinedIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'request', path: PATH_DASHBOARD.travel.travelSummary },
           { title: 'request approval', path: PATH_DASHBOARD.travel.reqApproval }
@@ -103,7 +139,7 @@ export const sidebarConfig = [
       {
         title: 'task details',
         path: PATH_DASHBOARD.task.root,
-        icon: ICONS.user,
+        icon: <AddTaskSharpIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'tasklist', path: PATH_DASHBOARD.task.taskList }
           // { title: 'Task Create', path: PATH_DASHBOARD.task.taskCreate }
@@ -127,6 +163,25 @@ export const sidebarConfig = [
           // { title: 'Upload Biometric', path: PATH_DASHBOARD.project.uploadBiometric },
           { title: 'Upload Details', path: PATH_DASHBOARD.project.uploadDashboard },
           { title: 'LOP Report', path: PATH_DASHBOARD.project.downloadReport }
+        ]
+      }
+    ]
+  },
+
+  {
+    subheader: 'Project Review',
+    items: [
+      {
+        title: 'Weekly Review',
+        path: PATH_DASHBOARD.review.root,
+        icon: <ReviewsIcon sx={{ fontSize: 19 }} />,
+        children: [
+          // { title: 'project sequence', path: PATH_DASHBOARD.review.projSequence },
+          { title: 'Status Entry', path: PATH_DASHBOARD.review.findProject },
+          // { title: 'fixed status', path: PATH_DASHBOARD.review.fixedStatus },
+          // { title: 'status review', path: PATH_DASHBOARD.review.statusReview },
+          // { title: 'support dashboard', path: PATH_DASHBOARD.review.supportDashboard },
+          { title: 'Reports', path: PATH_DASHBOARD.review.reviewReports }
         ]
       }
     ]
@@ -189,7 +244,7 @@ export const CRMandManagerSidebar = [
       {
         title: 'timesheet',
         path: PATH_DASHBOARD.timesheet.root,
-        icon: ICONS.user,
+        icon: <PersonAddAltIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'Entry', path: PATH_DASHBOARD.timesheet.timesheet },
           { title: 'Reports', path: PATH_DASHBOARD.timesheet.reports },
@@ -206,6 +261,22 @@ export const CRMandManagerSidebar = [
       }
     ]
   },
+  // {
+  //   subheader: 'WFH Request',
+  //   items: [
+  //     {
+  //       title: 'WFH Request',
+  //       path: PATH_DASHBOARD.travel.root,
+  //       icon: <AssuredWorkloadOutlinedIcon sx={{ fontSize: 19 }} />,
+  //       children: [
+  //         {
+  //           title: 'request',
+  //           path: PATH_DASHBOARD.travel.reqWFH
+  //         }
+  //       ]
+  //     }
+  //   ]
+  // },
 
   {
     subheader: 'CRM',
@@ -214,7 +285,7 @@ export const CRMandManagerSidebar = [
         title: 'CRM',
         path: PATH_DASHBOARD.crm.root,
 
-        icon: <ManageAccountsSharpIcon />,
+        icon: <ManageAccountsSharpIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'FollowUp Notifications', path: PATH_DASHBOARD.crm.FollowUpManager },
           { title: 'Master Screen', path: PATH_DASHBOARD.crm.MasterManager },
@@ -232,7 +303,7 @@ export const CRMandManagerSidebar = [
       {
         title: 'travel request',
         path: PATH_DASHBOARD.travel.root,
-        icon: <ConnectingAirportsOutlinedIcon />,
+        icon: <ConnectingAirportsOutlinedIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'request', path: PATH_DASHBOARD.travel.travelSummary }
           // { title: 'request approval', path: PATH_DASHBOARD.travel.reqApproval },
@@ -250,10 +321,45 @@ export const CRMandManagerSidebar = [
       {
         title: 'task details',
         path: PATH_DASHBOARD.task.root,
-        icon: ICONS.user,
+        icon: <AddTaskSharpIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'tasklist', path: PATH_DASHBOARD.task.taskList }
           // { title: 'Task Create', path: PATH_DASHBOARD.task.taskCreate }
+        ]
+      }
+    ]
+  },
+
+  {
+    subheader: 'Project',
+    items: [
+      {
+        title: 'project',
+        path: PATH_DASHBOARD.project.root,
+        icon: ICONS.analytics,
+        children: [
+          { title: 'project Creation', path: PATH_DASHBOARD.project.projectCreate },
+          // { title: 'Upload Paysquare', path: PATH_DASHBOARD.project.uploadPaysquare },
+          // { title: 'Upload Biometric', path: PATH_DASHBOARD.project.uploadBiometric },
+          { title: 'Upload Details', path: PATH_DASHBOARD.project.uploadDashboard },
+          { title: 'LOP Report', path: PATH_DASHBOARD.project.downloadReport }
+        ]
+      }
+    ]
+  },
+  {
+    subheader: 'Project Review',
+    items: [
+      {
+        title: 'Weekly Review',
+        path: PATH_DASHBOARD.review.root,
+        icon: <ReviewsIcon sx={{ fontSize: 19 }} />,
+        children: [
+          // { title: 'project sequence', path: PATH_DASHBOARD.review.projSequence },
+          { title: 'Status Entry', path: PATH_DASHBOARD.review.findProject },
+          { title: 'status review', path: PATH_DASHBOARD.review.statusReview },
+          { title: 'support dashboard', path: PATH_DASHBOARD.review.supportDashboard },
+          { title: 'Reports', path: PATH_DASHBOARD.review.reviewReports }
         ]
       }
     ]
@@ -282,7 +388,7 @@ export const userSidebarConfig = [
       {
         title: 'timesheet',
         path: PATH_DASHBOARD.timesheet.root,
-        icon: ICONS.user,
+        icon: <PersonAddAltIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'Entry', path: PATH_DASHBOARD.timesheet.timesheet },
           { title: 'KPI-KRA', path: PATH_DASHBOARD.timesheet.kpiKraSelfRating },
@@ -295,14 +401,33 @@ export const userSidebarConfig = [
       }
     ]
   },
-
+  // {
+  //   subheader: 'WFH Request',
+  //   items: [
+  //     {
+  //       title: 'WFH Request',
+  //       path: PATH_DASHBOARD.travel.root,
+  //       icon: <AssuredWorkloadOutlinedIcon sx={{ fontSize: 19 }} />,
+  //       children: [
+  //         {
+  //           title: 'request',
+  //           path: PATH_DASHBOARD.travel.reqWFH
+  //         },
+  //         {
+  //           title: 'eod entry',
+  //           path: PATH_DASHBOARD.travel.eodStatus
+  //         }
+  //       ]
+  //     }
+  //   ]
+  // },
   {
     subheader: 'travel request',
     items: [
       {
         title: 'travel request',
         path: PATH_DASHBOARD.travel.root,
-        icon: <ConnectingAirportsOutlinedIcon />,
+        icon: <ConnectingAirportsOutlinedIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'request', path: PATH_DASHBOARD.travel.travelSummary }
           // { title: 'request approval', path: PATH_DASHBOARD.travel.reqApproval },
@@ -319,10 +444,144 @@ export const userSidebarConfig = [
       {
         title: 'task details',
         path: PATH_DASHBOARD.task.root,
-        icon: ICONS.user,
+        icon: <AddTaskSharpIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'tasklist', path: PATH_DASHBOARD.task.taskList }
           // { title: 'Task Create', path: PATH_DASHBOARD.task.taskCreate }
+        ]
+      }
+    ]
+  },
+  {
+    subheader: 'Project Review',
+    items: [
+      {
+        title: 'Weekly Review',
+        path: PATH_DASHBOARD.review.root,
+        icon: <ReviewsIcon sx={{ fontSize: 19 }} />,
+        children: [
+          // { title: 'project sequence', path: PATH_DASHBOARD.review.projSequence },
+          { title: 'Status Entry', path: PATH_DASHBOARD.review.findProject },
+          // { title: 'fixed status', path: PATH_DASHBOARD.review.fixedStatus },
+          // { title: 'status review', path: PATH_DASHBOARD.review.statusReview },
+          // { title: 'support dashboard', path: PATH_DASHBOARD.review.supportDashboard },
+          { title: 'Reports', path: PATH_DASHBOARD.review.reviewReports }
+        ]
+      }
+    ]
+  }
+];
+
+export const pmoExcecutive = [
+  // GENERAL
+  // ----------------------------------------------------------------------
+  {
+    subheader: 'general',
+    items: [{ title: 'dashboard', path: PATH_DASHBOARD.general.root, icon: ICONS.dashboard }]
+  },
+  // TIMESHEET MANAGEMENT
+  //-------------------------------------------------------------------------
+  {
+    subheader: 'timesheet',
+    items: [
+      {
+        title: 'timesheet',
+        path: PATH_DASHBOARD.timesheet.root,
+        icon: <PersonAddAltIcon sx={{ fontSize: 19 }} />,
+        children: [
+          { title: 'Entry', path: PATH_DASHBOARD.timesheet.timesheet },
+          { title: 'KPI-KRA', path: PATH_DASHBOARD.timesheet.kpiKraSelfRating },
+          { title: 'Reports', path: PATH_DASHBOARD.timesheet.reports },
+          { title: 'Asset Details', path: PATH_DASHBOARD.timesheet.userDetails },
+          { title: 'Order Food', path: PATH_DASHBOARD.timesheet.orderFood }
+          // { title: 'Leave', path: PATH_DASHBOARD.timesheet.leaveAndOvertimeApplication },
+          // { title: 'Over Time Entry', path: PATH_DASHBOARD.timesheet.overTime }
+        ]
+      }
+    ]
+  },
+  // {
+  //   subheader: 'WFH Request',
+  //   items: [
+  //     {
+  //       title: 'WFH Request',
+  //       path: PATH_DASHBOARD.travel.root,
+  //       icon: <AssuredWorkloadOutlinedIcon sx={{ fontSize: 19 }} />,
+  //       children: [
+  //         {
+  //           title: 'request',
+  //           path: PATH_DASHBOARD.travel.reqWFH
+  //         },
+  //         {
+  //           title: 'eod entry',
+  //           path: PATH_DASHBOARD.travel.eodStatus
+  //         }
+  //       ]
+  //     }
+  //   ]
+  // },
+  {
+    subheader: 'travel request',
+    items: [
+      {
+        title: 'travel request',
+        path: PATH_DASHBOARD.travel.root,
+        icon: <ConnectingAirportsOutlinedIcon sx={{ fontSize: 19 }} />,
+        children: [
+          { title: 'request', path: PATH_DASHBOARD.travel.travelSummary }
+          // { title: 'request approval', path: PATH_DASHBOARD.travel.reqApproval },
+          // { title: 'request status', path: PATH_DASHBOARD.travel.reqStatus }
+        ]
+      }
+    ]
+  },
+  // TASK DETAILS
+
+  {
+    subheader: 'task details',
+    items: [
+      {
+        title: 'task details',
+        path: PATH_DASHBOARD.task.root,
+        icon: <AddTaskSharpIcon sx={{ fontSize: 19 }} />,
+        children: [
+          { title: 'tasklist', path: PATH_DASHBOARD.task.taskList }
+          // { title: 'Task Create', path: PATH_DASHBOARD.task.taskCreate }
+        ]
+      }
+    ]
+  },
+  {
+    subheader: 'Project',
+    items: [
+      {
+        title: 'project',
+        path: PATH_DASHBOARD.project.root,
+        icon: ICONS.analytics,
+        children: [
+          { title: 'project Creation', path: PATH_DASHBOARD.project.projectCreate },
+          // { title: 'Upload Paysquare', path: PATH_DASHBOARD.project.uploadPaysquare },
+          // { title: 'Upload Biometric', path: PATH_DASHBOARD.project.uploadBiometric },
+          { title: 'Upload Details', path: PATH_DASHBOARD.project.uploadDashboard },
+          { title: 'LOP Report', path: PATH_DASHBOARD.project.downloadReport }
+        ]
+      }
+    ]
+  },
+  {
+    subheader: 'Project Review',
+    items: [
+      {
+        title: 'Weekly Review',
+        path: PATH_DASHBOARD.review.root,
+        icon: <ReviewsIcon sx={{ fontSize: 19 }} />,
+        children: [
+          { title: 'project sequence', path: PATH_DASHBOARD.review.projSequence },
+          { title: 'Status Entry', path: PATH_DASHBOARD.review.findProject },
+          // { title: 'fixed status', path: PATH_DASHBOARD.review.fixedStatus },
+          { title: 'status review', path: PATH_DASHBOARD.review.statusReview },
+          { title: 'support dashboard', path: PATH_DASHBOARD.review.supportDashboard },
+          { title: 'Reports', path: PATH_DASHBOARD.review.reviewReports }
         ]
       }
     ]
@@ -346,7 +605,7 @@ export const managerCRMSidebar = [
       {
         title: 'timesheet',
         path: PATH_DASHBOARD.timesheet.root,
-        icon: ICONS.user,
+        icon: <PersonAddAltIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'Entry', path: PATH_DASHBOARD.timesheet.timesheet },
           { title: 'KPI-KRA', path: PATH_DASHBOARD.timesheet.kpiKraSelfRating },
@@ -366,7 +625,7 @@ export const managerCRMSidebar = [
       {
         title: 'CRM',
         path: PATH_DASHBOARD.crm.root,
-        icon: <ManageAccountsSharpIcon />,
+        icon: <ManageAccountsSharpIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'FollowUp Notifications', path: PATH_DASHBOARD.crm.FollowUpManager },
           { title: 'Master Screen', path: PATH_DASHBOARD.crm.MasterManager },
@@ -383,11 +642,29 @@ export const managerCRMSidebar = [
       {
         title: 'travel request',
         path: PATH_DASHBOARD.travel.root,
-        icon: <ConnectingAirportsOutlinedIcon />,
+        icon: <ConnectingAirportsOutlinedIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'request', path: PATH_DASHBOARD.travel.travelSummary }
           // { title: 'request approval', path: PATH_DASHBOARD.travel.reqApproval },
           // { title: 'request status', path: PATH_DASHBOARD.travel.reqStatus }
+        ]
+      }
+    ]
+  },
+  {
+    subheader: 'Project Review',
+    items: [
+      {
+        title: 'Weekly Review',
+        path: PATH_DASHBOARD.review.root,
+        icon: <ReviewsIcon sx={{ fontSize: 19 }} />,
+        children: [
+          // { title: 'project sequence', path: PATH_DASHBOARD.review.projSequence },
+          { title: 'Status Entry', path: PATH_DASHBOARD.review.findProject },
+          // { title: 'fixed status', path: PATH_DASHBOARD.review.fixedStatus },
+          // { title: 'status review', path: PATH_DASHBOARD.review.statusReview },
+          // { title: 'support dashboard', path: PATH_DASHBOARD.review.supportDashboard },
+          { title: 'Reports', path: PATH_DASHBOARD.review.reviewReports }
         ]
       }
     ]
@@ -411,7 +688,7 @@ export const userCRMSidebar = [
       {
         title: 'timesheet',
         path: PATH_DASHBOARD.timesheet.root,
-        icon: ICONS.user,
+        icon: <PersonAddAltIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'Entry', path: PATH_DASHBOARD.timesheet.timesheet },
           { title: 'KPI-KRA', path: PATH_DASHBOARD.timesheet.kpiKraSelfRating },
@@ -430,7 +707,7 @@ export const userCRMSidebar = [
       {
         title: 'CRM',
         path: PATH_DASHBOARD.crm.root,
-        icon: <ManageAccountsSharpIcon />,
+        icon: <ManageAccountsSharpIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'FollowUp Notifications', path: PATH_DASHBOARD.crm.FollowUp },
           { title: 'Master Screen', path: PATH_DASHBOARD.crm.Master },
@@ -448,7 +725,7 @@ export const userCRMSidebar = [
       {
         title: 'travel request',
         path: PATH_DASHBOARD.travel.root,
-        icon: <ConnectingAirportsOutlinedIcon />,
+        icon: <ConnectingAirportsOutlinedIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'request', path: PATH_DASHBOARD.travel.travelSummary }
           // { title: 'request approval', path: PATH_DASHBOARD.travel.reqApproval },
@@ -466,10 +743,28 @@ export const userCRMSidebar = [
       {
         title: 'task details',
         path: PATH_DASHBOARD.task.root,
-        icon: ICONS.user,
+        icon: <AddTaskSharpIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'tasklist', path: PATH_DASHBOARD.task.taskList }
           // { title: 'Task Create', path: PATH_DASHBOARD.task.taskCreate }
+        ]
+      }
+    ]
+  },
+  {
+    subheader: 'Project Review',
+    items: [
+      {
+        title: 'Weekly Review',
+        path: PATH_DASHBOARD.review.root,
+        icon: <ReviewsIcon sx={{ fontSize: 19 }} />,
+        children: [
+          // { title: 'project sequence', path: PATH_DASHBOARD.review.projSequence },
+          { title: 'Status Entry', path: PATH_DASHBOARD.review.findProject },
+          // { title: 'fixed status', path: PATH_DASHBOARD.review.fixedStatus },
+          // { title: 'status review', path: PATH_DASHBOARD.review.statusReview },
+          // { title: 'support dashboard', path: PATH_DASHBOARD.review.supportDashboard },
+          { title: 'Reports', path: PATH_DASHBOARD.review.reviewReports }
         ]
       }
     ]
@@ -493,7 +788,7 @@ export const travelRequest = [
       {
         title: 'timesheet',
         path: PATH_DASHBOARD.timesheet.root,
-        icon: ICONS.user,
+        icon: <PersonAddAltIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'Entry', path: PATH_DASHBOARD.timesheet.timesheet },
           { title: 'KPI-KRA', path: PATH_DASHBOARD.timesheet.kpiKraSelfRating },
@@ -513,7 +808,7 @@ export const travelRequest = [
       {
         title: 'travel request',
         path: PATH_DASHBOARD.travel.root,
-        icon: <ConnectingAirportsOutlinedIcon />,
+        icon: <ConnectingAirportsOutlinedIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'request', path: PATH_DASHBOARD.travel.travelSummary },
           // { title: 'request approval', path: PATH_DASHBOARD.travel.reqApproval },
@@ -531,10 +826,28 @@ export const travelRequest = [
       {
         title: 'task details',
         path: PATH_DASHBOARD.task.root,
-        icon: ICONS.user,
+        icon: <AddTaskSharpIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'tasklist', path: PATH_DASHBOARD.task.taskList }
           // { title: 'Task Create', path: PATH_DASHBOARD.task.taskCreate }
+        ]
+      }
+    ]
+  },
+  {
+    subheader: 'Project Review',
+    items: [
+      {
+        title: 'Weekly Review',
+        path: PATH_DASHBOARD.review.root,
+        icon: <ReviewsIcon sx={{ fontSize: 19 }} />,
+        children: [
+          // { title: 'project sequence', path: PATH_DASHBOARD.review.projSequence },
+          { title: 'Status Entry', path: PATH_DASHBOARD.review.findProject },
+          // { title: 'fixed status', path: PATH_DASHBOARD.review.fixedStatus },
+          // { title: 'status review', path: PATH_DASHBOARD.review.statusReview },
+          // { title: 'support dashboard', path: PATH_DASHBOARD.review.supportDashboard },
+          { title: 'Reports', path: PATH_DASHBOARD.review.reviewReports }
         ]
       }
     ]
@@ -674,7 +987,7 @@ export const ManagerRepSidebar = [
       {
         title: 'timesheet',
         path: PATH_DASHBOARD.timesheet.root,
-        icon: ICONS.user,
+        icon: <PersonAddAltIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'Entry', path: PATH_DASHBOARD.timesheet.timesheet },
           { title: 'Reports', path: PATH_DASHBOARD.timesheet.reports },
@@ -698,13 +1011,13 @@ export const ManagerRepSidebar = [
       {
         title: 'CRM',
         path: PATH_DASHBOARD.crm.root,
-        icon: <ManageAccountsSharpIcon />,
+        icon: <ManageAccountsSharpIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'FollowUp Notifications', path: PATH_DASHBOARD.crm.FollowUp },
           { title: 'Master Screen', path: PATH_DASHBOARD.crm.Master },
           { title: 'Lead Entry Screen', path: PATH_DASHBOARD.crm.LeadEntryScreen },
           { title: 'Reports', path: PATH_DASHBOARD.crm.CrmReports }
-          // { title: 'Bulk Upload', path: PATH_DASHBOARD.crm.BulkUploadcrm }
+          // { title: 'Bulk Upload', path: PATH_DASHBOARDs.crm.BulkUploadcrm }
         ]
       }
     ]
@@ -716,7 +1029,7 @@ export const ManagerRepSidebar = [
       {
         title: 'travel request',
         path: PATH_DASHBOARD.travel.root,
-        icon: <ConnectingAirportsOutlinedIcon />,
+        icon: <ConnectingAirportsOutlinedIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'request', path: PATH_DASHBOARD.travel.travelSummary }
           // { title: 'request approval', path: PATH_DASHBOARD.travel.reqApproval },
@@ -734,10 +1047,29 @@ export const ManagerRepSidebar = [
       {
         title: 'task details',
         path: PATH_DASHBOARD.task.root,
-        icon: ICONS.user,
+        icon: <AddTaskSharpIcon sx={{ fontSize: 19 }} />,
         children: [
           { title: 'tasklist', path: PATH_DASHBOARD.task.taskList }
           // { title: 'Task Create', path: PATH_DASHBOARD.task.taskCreate }
+        ]
+      }
+    ]
+  },
+
+  {
+    subheader: 'Project Review',
+    items: [
+      {
+        title: 'Weekly Review',
+        path: PATH_DASHBOARD.review.root,
+        icon: <ReviewsIcon sx={{ fontSize: 19 }} />,
+        children: [
+          // { title: 'project sequence', path: PATH_DASHBOARD.review.projSequence },
+          { title: 'Status Entry', path: PATH_DASHBOARD.review.findProject },
+          // { title: 'fixed status', path: PATH_DASHBOARD.review.fixedStatus },
+          // { title: 'status review', path: PATH_DASHBOARD.review.statusReview },
+          // { title: 'support dashboard', path: PATH_DASHBOARD.review.supportDashboard },
+          { title: 'Reports', path: PATH_DASHBOARD.review.reviewReports }
         ]
       }
     ]

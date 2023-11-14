@@ -85,15 +85,20 @@ export const getAllProjectsForLOVAsync = createAsyncThunk(
   }
 );
 
-export const getPostProjectAsync = createAsyncThunk('user/getPostProject', async (_payload, { rejectWithValue }) => {
-  try {
-    const response = await api.methods.getData(`/techstep/auth/service/getPostProject?id=${_payload}`);
+export const getPostProjectAsync = createAsyncThunk(
+  'user/getActiveProjectOfAnEmp',
+  async (_payload, { rejectWithValue }) => {
+    try {
+      const response = await api.methods.getData(
+        `https://techstephub.focusrtech.com:6060/techstep/auth/service/getActiveProjectOfAnEmp?id=${_payload}`
+      );
 
-    return response.data;
-  } catch (err) {
-    return rejectWithValue(err.data);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.data);
+    }
   }
-});
+);
 
 // Create user
 export const createUserActionAsync = createAsyncThunk(

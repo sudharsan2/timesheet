@@ -67,7 +67,7 @@ export default function CRMReport() {
       try {
         setLoading(true);
         const response = await axios.post(
-          'https://secure.focusrtech.com:5050/techstep/api/CrmLead/Service/getFollowexcel',
+          'https://secure.focusrtech.com:3030/techstep/api/CrmLead/Service/getFollowexcel',
           {
             follDate: date,
             followUpToDate: Todate

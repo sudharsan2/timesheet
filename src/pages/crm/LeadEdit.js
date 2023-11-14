@@ -237,7 +237,7 @@ export default function LeadEdit() {
   useEffect(() => {
     axios
       .get(
-        'https://secure.focusrtech.com:5050/techstep/api/CrmLead/Service/getListOfLeadEntryDetails',
+        'https://secure.focusrtech.com:3030/techstep/api/CrmLead/Service/getListOfLeadEntryDetails',
         {},
         {
           headers: {

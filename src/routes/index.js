@@ -19,6 +19,7 @@ import FollowUp from '../pages/crm/FollowUp';
 import BulkUploadCRM from '../pages/crm/BulkUpload';
 import FollowUpManager from '../pages/crm/FollowUpManager';
 import Acknowledge from '../pages/ResetPasswordPage/Acknowledge';
+import ProjectAcknowledge from '../pages/ResetPasswordPage/ProjectAcknowledge';
 
 // ----------------------------------------------------------------------
 
@@ -65,6 +66,10 @@ export default function Router() {
             path: 'service/postAck/reset/:resetToken/:employeeId/:oldManagerId/:newManagerId',
             element: <Acknowledge />
           },
+          {
+            path: 'service/projectAck/reset/:resetToken/:employeeId/:oldManagerId/:newManagerId/:project',
+            element: <ProjectAcknowledge />
+          },
           { path: 'asset-capture', element: <AssetCaptureScreen /> }
         ]
       },
@@ -104,7 +109,8 @@ export default function Router() {
               { path: 'user-management/unassigned-asset', element: <UnassignedAsset /> },
               { path: 'user-management/create-user-asset', element: <CreateUserAsset /> },
               { path: 'user-management/asset-history', element: <AssetHistory /> },
-              { path: 'user-management/onsite-project/:employeeId', element: <OnsiteProject /> }
+              { path: 'user-management/onsite-project/:employeeId', element: <OnsiteProject /> },
+              { path: 'user-management/worked-proj/:employeeId', element: <WorkedProject /> }
             ]
           },
           {
@@ -197,6 +203,30 @@ export default function Router() {
               {
                 path: 'approve-manager/:travel_id',
                 element: <ApprovalListTool />
+              },
+              {
+                path: 'req-wfh',
+                element: <RequestWFH />
+              },
+              {
+                path: 'req-form',
+                element: <RequestForms />
+              },
+              {
+                path: 'request-approval',
+                element: <RequestApproval />
+              },
+              {
+                path: 'status-approval',
+                element: <StatusApproval />
+              },
+              {
+                path: 'eod-status',
+                element: <EodStatus />
+              },
+              {
+                path: 'reviewed-status',
+                element: <ReviewedStatus />
               }
             ]
           },
@@ -255,6 +285,65 @@ export default function Router() {
               {
                 path: 'leave-list/:projId',
                 element: <LeaveList />
+              }
+            ]
+          },
+
+          {
+            path: 'review',
+            children: [
+              { element: <Navigate to="/dashboard/review/proj-sequence" replace /> },
+              {
+                path: 'proj-sequence',
+                element: <ProjectSequence />
+              },
+              {
+                path: 'find-project',
+                element: <FindProject />
+              },
+              {
+                path: 'create-review/:projId',
+                element: <CreateReview />
+              },
+              {
+                path: 'edit-review/:projId',
+                element: <EditReview />
+              },
+              {
+                path: 'open-ticket/:projId',
+                element: <OpenTicketClosure />
+              },
+              {
+                path: 'edit-weekrev/:projId',
+                element: <EditWeekReview />
+              },
+              {
+                path: 'create-fixed/:projId',
+                element: <CreateFixed />
+              },
+              {
+                path: 'fixed-status/:weekNumber/:year',
+                element: <FixedStatusReview />
+              },
+              {
+                path: 'status-review',
+                element: <MainReview />
+              },
+              {
+                path: 'support-project-review/:weekNumber/:year',
+                element: <SupportProjectReview />
+              },
+              {
+                path: 'support-dashboard',
+                element: <SupportDashboard />
+              },
+              {
+                path: 'reviewReports',
+                element: <Report />
+              },
+              {
+                path: 'support-dashboard/support-review/:projectName',
+                element: <DashboardReview />
               }
             ]
           },
@@ -346,6 +435,7 @@ const UserManagement = Loadable(lazy(() => import('../pages/administrator/UserMa
 const UserCreate = Loadable(lazy(() => import('../pages/administrator/UserCreate')));
 const UserEdit = Loadable(lazy(() => import('../pages/administrator/UserEdit')));
 const OnsiteProject = Loadable(lazy(() => import('../pages/administrator/OnsiteProject')));
+const WorkedProject = Loadable(lazy(() => import('../pages/administrator/WorkedProject')));
 const UserBulkupload = Loadable(lazy(() => import('../pages/administrator/UserBulkupload')));
 const UserAsset = Loadable(lazy(() => import('../pages/administrator/UserAsset')));
 const CreateAsset = Loadable(lazy(() => import('../pages/administrator/CreateAsset')));
@@ -451,3 +541,23 @@ const ReqApproval = Loadable(lazy(() => import('../pages/travelmanagement/ReqApp
 const ReqStatus = Loadable(lazy(() => import('../pages/travelmanagement/ReqStatus')));
 const ApproveStatusList = Loadable(lazy(() => import('../pages/travelmanagement/ApproveStatusList')));
 const ApprovalListTool = Loadable(lazy(() => import('../pages/travelmanagement/ApprovalListTool')));
+const RequestWFH = Loadable(lazy(() => import('../pages/wfhrequest/RequestWFH')));
+const RequestForms = Loadable(lazy(() => import('../pages/wfhrequest/RequestForm')));
+const RequestApproval = Loadable(lazy(() => import('../pages/wfhrequest/RequestApproval')));
+const StatusApproval = Loadable(lazy(() => import('../pages/wfhrequest/StatusApproval')));
+const EodStatus = Loadable(lazy(() => import('../pages/wfhrequest/EodStatus')));
+const ReviewedStatus = Loadable(lazy(() => import('../pages/wfhrequest/ReviewedStatus')));
+
+const ProjectSequence = Loadable(lazy(() => import('../pages/projectreview/ProjectSequence')));
+const FindProject = Loadable(lazy(() => import('../pages/projectreview/ownerstatuscreate/FindProject')));
+const CreateReview = Loadable(lazy(() => import('../pages/projectreview/ownerstatuscreate/CreateReview')));
+const EditReview = Loadable(lazy(() => import('../pages/project/EditReview')));
+const OpenTicketClosure = Loadable(lazy(() => import('../pages/projectreview/ownerstatuscreate/OpenTicketClosure')));
+const EditWeekReview = Loadable(lazy(() => import('../pages/projectreview/ownerstatuscreate/EditWeekReview')));
+const CreateFixed = Loadable(lazy(() => import('../pages/projectreview/ownerstatuscreate/CreateFixed')));
+const FixedStatusReview = Loadable(lazy(() => import('../pages/projectreview/statusreview/FixedStatusReview')));
+const MainReview = Loadable(lazy(() => import('../pages/projectreview/statusreview/MainReview')));
+const SupportProjectReview = Loadable(lazy(() => import('../pages/projectreview/statusreview/SupportProjectReview')));
+const SupportDashboard = Loadable(lazy(() => import('../pages/projectreview/SupportDashboard')));
+const Report = Loadable(lazy(() => import('../pages/projectreview/statusreview/Report')));
+const DashboardReview = Loadable(lazy(() => import('../pages/projectreview/statusreview/DashboardReview')));

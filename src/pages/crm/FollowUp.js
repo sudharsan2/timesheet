@@ -122,7 +122,7 @@ export default function FollowUp() {
     // localStorage.setItem('follow_up_date', event.target.value);
     axios
       .post(
-        'https://secure.focusrtech.com:5050/techstep/api/CrmLead/Service/getFollowUpNotification',
+        'https://secure.focusrtech.com:3030/techstep/api/CrmLead/Service/getFollowUpNotification',
         {
           // follow_up_date: localStorage.getItem('select')
           follow_up_date: String(event.target.value)
@@ -168,7 +168,7 @@ export default function FollowUp() {
     setStartDate(String(d));
     axios
       .post(
-        'https://secure.focusrtech.com:5050/techstep/api/CrmLead/Service/getFollowUpNotification',
+        'https://secure.focusrtech.com:3030/techstep/api/CrmLead/Service/getFollowUpNotification',
         {
           // follow_up_date: localStorage.getItem('select')
           follow_up_date: String(d)

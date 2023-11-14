@@ -225,6 +225,12 @@ export default function TimesheetEntry() {
 
   const sumMins = rows.length === 0 ? 0 : rows.map((o) => o.minutes).reduce((a, c) => Number(a) + Number(c));
 
+  const specificDate = new Date();
+  specificDate.setFullYear(2023);
+  specificDate.setMonth(9);
+  specificDate.setDate(18);
+  console.log('first,', specificDate);
+
   const timeConvert = (n) => {
     const num = Number(n);
     const hours = num / 60;
@@ -443,6 +449,7 @@ export default function TimesheetEntry() {
                   inputFormat="dd/MM/yyyy"
                   disableFuture
                   minDate={previousWeek}
+                  maxDate={specificDate}
                   onChange={(newValue) => {
                     if (newValue) {
                       const parseddate = format(newValue, 'yyyy-MM-dd');

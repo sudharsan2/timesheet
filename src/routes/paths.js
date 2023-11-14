@@ -32,7 +32,8 @@ export const PATH_DASHBOARD = {
     unassignedAsset: path(ROOTS_DASHBOARD, '/admin/user-management/unassigned-asset'),
     createUserAsset: path(ROOTS_DASHBOARD, '/admin/user-management/create-user-asset'),
     assetHistory: path(ROOTS_DASHBOARD, '/admin/user-management/asset-history'),
-    onsiteProject: path(ROOTS_DASHBOARD, '/admin/user-management/onsite-project')
+    onsiteProject: path(ROOTS_DASHBOARD, '/admin/user-management/onsite-project'),
+    workedProj: path(ROOTS_DASHBOARD, '/admin/user-management/worked-proj')
   },
   timesheet: {
     root: path(ROOTS_DASHBOARD, '/timesheet'),
@@ -90,7 +91,29 @@ export const PATH_DASHBOARD = {
     reqApproval: path(ROOTS_DASHBOARD, '/travel/req-approval'),
     reqStatus: path(ROOTS_DASHBOARD, '/travel/req-status'),
     approveStatus: path(ROOTS_DASHBOARD, '/travel/approve-status'),
-    approveManager: path(ROOTS_DASHBOARD, '/travel/approve-manager')
+    approveManager: path(ROOTS_DASHBOARD, '/travel/approve-manager'),
+    reqWFH: path(ROOTS_DASHBOARD, '/travel/req-wfh'),
+    reqForm: path(ROOTS_DASHBOARD, '/travel/req-form'),
+    requestApproval: path(ROOTS_DASHBOARD, '/travel/request-approval'),
+    statusApproval: path(ROOTS_DASHBOARD, '/travel/status-approval'),
+    eodStatus: path(ROOTS_DASHBOARD, '/travel/eod-status'),
+    reviewStatus: path(ROOTS_DASHBOARD, '/travel/reviewed-status')
+  },
+
+  review: {
+    projSequence: path(ROOTS_DASHBOARD, '/review/proj-sequence'),
+    findProject: path(ROOTS_DASHBOARD, '/review/find-project'),
+    createReview: path(ROOTS_DASHBOARD, '/review/create-review'),
+    editReview: path(ROOTS_DASHBOARD, '/review/edit-review'),
+    openTicket: path(ROOTS_DASHBOARD, '/review/open-ticket'),
+    editWeekRev: path(ROOTS_DASHBOARD, '/review/edit-weekrev'),
+    createFixed: path(ROOTS_DASHBOARD, '/review/create-fixed'),
+    fixedStatus: path(ROOTS_DASHBOARD, '/review/fixed-status'),
+    statusReview: path(ROOTS_DASHBOARD, '/review/status-review'),
+    supportProjectReview: path(ROOTS_DASHBOARD, '/review/support-project-review'),
+    supportDashboard: path(ROOTS_DASHBOARD, '/review/support-dashboard'),
+    reviewReports: path(ROOTS_DASHBOARD, '/review/reviewReports'),
+    reviewDashboard: path(ROOTS_DASHBOARD, '/review/support-review')
   },
 
   project: {
@@ -146,6 +169,7 @@ export const PATH_AUTH = {
   resetPassword: path(ROOTS_AUTH, '/reset-password'),
   resetPasswordPage: path(ROOTS_AUTH, '/resetpasswordpage/resetPwd'),
   managerAcknowledgement: path(ROOTS_AUTH, '/service/postAck/reset'),
+  managerProjectAcknowledge: path(ROOTS_AUTH, '/service/projectAck/reset'),
   verify: path(ROOTS_AUTH, '/verify'),
   assetCapture: path(ROOTS_AUTH, '/asset-capture')
 };

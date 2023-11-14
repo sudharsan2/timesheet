@@ -4,10 +4,13 @@ import api from '../../services/api';
 const initialState = {
   isLoading: false,
   projects: [],
+  workedProj: [],
+  wfhReq: [],
   travel: [],
   manager: [],
   statusreq: [],
   holidays: [],
+  openTickets: [],
   msg: '',
   error: ''
 };
@@ -15,6 +18,18 @@ const initialState = {
 export const getAllProjectsAsync = createAsyncThunk('proj/getAllProjects', async (_payload, { rejectWithValue }) => {
   try {
     const response = await api.methods.getData('/techstep/api/AllProject/Service/getAllProjects');
+
+    console.log(response.data);
+
+    return response.data;
+  } catch (err) {
+    return rejectWithValue(err.data);
+  }
+});
+
+export const getOpenticketsAsync = createAsyncThunk('proj/getOpentickets', async (_payload, { rejectWithValue }) => {
+  try {
+    const response = await api.methods.getData(`/techstep/api/Project/Service/getOpentickets/${_payload}`);
 
     console.log(response.data);
 
@@ -40,6 +55,37 @@ export const getListOfTravelDetailsByOwnerAsync = createAsyncThunk(
     }
   }
 );
+
+// Worked Projects
+
+export const getAllProjectsOfAnEmpAsync = createAsyncThunk(
+  'proj/getAllProjectsOfAnEmp',
+  async (_payload, { rejectWithValue }) => {
+    try {
+      const response = await api.methods.getData(
+        `https://techstephub.focusrtech.com:6060/techstep/auth/service/getAllProjectsOfAnEmp?id=${_payload}`
+      );
+
+      console.log(response.data);
+
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.data);
+    }
+  }
+);
+
+export const getDetailsofwfhAsync = createAsyncThunk('proj/getDetailsofwfh', async (_payload, { rejectWithValue }) => {
+  try {
+    const response = await api.methods.getData(`/techstep/api/Timesheet/Service/wfh`);
+
+    console.log(response.data);
+
+    return response.data;
+  } catch (err) {
+    return rejectWithValue(err.data);
+  }
+});
 
 export const getListOfAllTravelDetailsAsync = createAsyncThunk(
   'proj/getListOfAllTravelDetails',
@@ -73,7 +119,7 @@ export const getListOfTravelDetailsByManagerAsync = createAsyncThunk(
   async ({ rejectWithValue }) => {
     try {
       const response = await api.methods.getData(
-        'https://secure.focusrtech.com:5050/techstep/api/Travel/Service/getListOfTravelDetailsByManager'
+        'https://secure.focusrtech.com:3030/techstep/api/Travel/Service/getListOfTravelDetailsByManager'
       );
 
       //   dispatch(getManagerTaskAssignByAsync());
@@ -138,6 +184,48 @@ const projSlice = createSlice({
       };
     },
     [getAllProjectsAsync.rejected]: (state, action) => ({
+      ...state,
+      error: action.payload.message,
+      isLoading: false
+    }),
+    [getOpenticketsAsync.pending]: (state) => ({ ...state, isLoading: false }),
+    [getOpenticketsAsync.fulfilled]: (state, action) => {
+      console.log('Projects fetched successfully!');
+      return {
+        ...state,
+        openTickets: action.payload,
+        isLoading: false
+      };
+    },
+    [getOpenticketsAsync.rejected]: (state, action) => ({
+      ...state,
+      error: action.payload.message,
+      isLoading: false
+    }),
+    [getAllProjectsOfAnEmpAsync.pending]: (state) => ({ ...state, isLoading: false }),
+    [getAllProjectsOfAnEmpAsync.fulfilled]: (state, action) => {
+      console.log('Projects fetched successfully!');
+      return {
+        ...state,
+        workedProj: action.payload,
+        isLoading: false
+      };
+    },
+    [getAllProjectsOfAnEmpAsync.rejected]: (state, action) => ({
+      ...state,
+      error: action.payload.message,
+      isLoading: false
+    }),
+    [getDetailsofwfhAsync.pending]: (state) => ({ ...state, isLoading: false }),
+    [getDetailsofwfhAsync.fulfilled]: (state, action) => {
+      console.log('Projects fetched successfully!');
+      return {
+        ...state,
+        wfhReq: action.payload,
+        isLoading: false
+      };
+    },
+    [getDetailsofwfhAsync.rejected]: (state, action) => ({
       ...state,
       error: action.payload.message,
       isLoading: false
@@ -223,6 +311,9 @@ export const { startLoading, stopLoading, getUserList, getDetailsAsset, setError
 
 export const getIsLoadingFromUser = (state) => state.proj.isLoading;
 export const getAllUsersFromUser = (state) => state.proj.projects;
+export const getAllopenProjects = (state) => state.proj.openTickets;
+export const getAllWorkedProjects = (state) => state.proj.workedProj;
+export const getAllWfhReq = (state) => state.proj.wfhReq;
 export const getAllTravelRequest = (state) => state.proj.travel;
 export const getAllTravelManager = (state) => state.proj.manager;
 export const getAllAdminList = (state) => state.proj.statusreq;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 // material
 import { styled, useTheme } from '@mui/material/styles';
 // hooks
@@ -39,9 +39,19 @@ export default function DashboardLayout() {
   const { collapseClick } = useCollapseDrawer();
   const [open, setOpen] = useState(false);
 
+  const location = useLocation();
+
+  // Define the path of the specific page where you want to hide the DashboardNavbar
+  const specificPagePath = '/techstep/dashboard/review/support-project-review/42/2023'; // Replace with the actual path
+
+  // Check if the current location matches the specific page's path
+  const isSpecificPage = location.pathname === specificPagePath;
+  console.log('Current location:', location.pathname);
+  console.log('Specific page path:', specificPagePath);
+
   return (
     <RootStyle>
-      <DashboardNavbar onOpenSidebar={() => setOpen(true)} />
+      {!isSpecificPage && <DashboardNavbar onOpenSidebar={() => setOpen(true)} />}
       <DashboardSidebar isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
       <MainStyle
         sx={{

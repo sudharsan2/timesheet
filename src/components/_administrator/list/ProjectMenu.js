@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { Icon } from '@iconify/react';
 import { useRef, useState } from 'react';
 import editFill from '@iconify/icons-eva/edit-fill';
+import projectRev from '@iconify/icons-eva/book-open-outline';
 import uploadOutline from '@iconify/icons-eva/upload-outline';
 import arrowOutline from '@iconify/icons-eva/arrowhead-down-outline';
 import listFill from '@iconify/icons-eva/list-fill';
@@ -39,7 +40,7 @@ export default function ProjectMenu({ projId, ProjIdCopy }) {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem
+        {/* <MenuItem
           component={RouterLink}
           to={`${PATH_DASHBOARD.project.editProject}/${projId}`}
           sx={{ color: 'text.secondary' }}
@@ -48,6 +49,16 @@ export default function ProjectMenu({ projId, ProjIdCopy }) {
             <Icon icon={editFill} width={24} height={28} />
           </ListItemIcon>
           <ListItemText primary="Edit" primaryTypographyProps={{ variant: 'body2' }} />
+        </MenuItem> */}
+        <MenuItem
+          component={RouterLink}
+          to={`${PATH_DASHBOARD.review.editReview}/${projId}`}
+          sx={{ color: 'text.secondary' }}
+        >
+          <ListItemIcon>
+            <Icon icon={projectRev} width={24} height={24} />
+          </ListItemIcon>
+          <ListItemText primary="ProjectReview" primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>
         <MenuItem
           component={RouterLink}

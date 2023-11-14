@@ -15,7 +15,6 @@ import {
   Chip,
   ListItemText
 } from '@mui/material';
-import Multiselect from 'multiselect-react-dropdown';
 // import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
 import { Icon } from '@iconify/react';

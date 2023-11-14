@@ -1,6 +1,7 @@
 import { filter } from 'lodash';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { useState } from 'react';
 import { Icon } from '@iconify/react';
 import {
   Card,
@@ -40,6 +41,8 @@ import useSettings from '../../hooks/useSettings';
 import Page from '../../components/Page';
 import Scrollbar from '../../components/Scrollbar';
 import { MIconButton } from '../../components/@material-extend';
+
+/*eslint-disable*/
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -167,6 +170,9 @@ export default function TSApprovalList() {
   const [comments, setComments] = React.useState('');
   const timesheetIdDetails = useSelector(getTimesheetIdDetailsFromTSAppr);
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -216,6 +222,7 @@ export default function TSApprovalList() {
   const sumMins = rows.length === 0 ? 0 : rows.map((o) => o.minutes).reduce((a, c) => Number(a) + Number(c));
 
   const handleSubmit = (value) => {
+    setIsLoading(true);
     let timesheetId = null;
 
     const appVal = 'Approved Successfully';
@@ -261,6 +268,13 @@ export default function TSApprovalList() {
             </MIconButton>
           )
         });
+        setTimeout(() => {
+          // Assuming the response is successful
+          setIsSuccess(true);
+          setIsLoading(false);
+
+          // You can perform any additional actions here for success
+        }, 2000);
         navigate(PATH_DASHBOARD.timesheet.approval);
       })
       .catch((err) => {
@@ -307,6 +321,15 @@ export default function TSApprovalList() {
               <Button variant="contained" startIcon={<ThumbDownIcon />} onClick={() => handleSubmit('additional_info')}>
                 Reject
               </Button>
+              {/* <Button
+                variant="contained"
+                onClick={() => handleSubmit('additional_info')}
+                startIcon={<ThumbDownIcon />}
+                disabled={isLoading}
+                className={isSuccess ? 'success' : ''}
+              >
+                {isLoading ? <span>Loading...</span> : isSuccess ? <span>Success</span> : 'Reject'}
+              </Button> */}
             </>
           }
         />

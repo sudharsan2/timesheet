@@ -8,6 +8,7 @@ import eyeFill from '@iconify/icons-eva/eye-fill';
 import eyeOffFill from '@iconify/icons-eva/eye-off-fill';
 import { LoadingButton, DatePicker } from '@mui/lab';
 import plusFill from '@iconify/icons-eva/plus-fill';
+import viewFill from '@iconify/icons-eva/eye-outline';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { Link as RouterLink, useParams } from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -102,6 +103,8 @@ export default function UserEdit({ employeeId }) {
   const projectLOV = useSelector(getProjectLOVFromTS);
   const [calPayroll, setCalPayroll] = React.useState('');
   const [startDate, setStartDate] = useState(null);
+  const today = new Date();
+  const maxDate = today.toISOString().split('T')[0];
 
   /**
    * Get user from array
@@ -113,6 +116,7 @@ export default function UserEdit({ employeeId }) {
   const [isBulkChecked, setisBulkChecked] = useState(false || userDetails.is_bulk_upload === 'Y');
   const [dateFreeze, setDateFreeze] = useState('');
   const getRole = (role) => (roles.length > 0 ? roles.find((_x) => _x.id === role).name : '');
+  console.log('Dell', userDetails);
 
   const title = 'User Management';
 
@@ -133,8 +137,8 @@ export default function UserEdit({ employeeId }) {
     group: Yup.number().required('KPI-KRa Group is required'),
     designation: Yup.string().required('Designation is required'),
     primaryProject: Yup.string().required('Primary Project is required'),
-    date_of_birth: Yup.string().required('Date of Birth is required'),
-    date_of_joining: Yup.string().required('Date of Joim is required'),
+    // date_of_birth: Yup.string().required('Date of Birth is required'),
+    // date_of_joining: Yup.string().required('Date of Joim is required'),
     is_bulk_upload: Yup.string(),
     date_freeze: Yup.string()
     // avatarUrl: Yup.mixed().required('Avatar is required')
@@ -321,19 +325,28 @@ export default function UserEdit({ employeeId }) {
             { name: 'User Management', href: PATH_DASHBOARD.admin.userManagement },
             { name: 'User Edit' }
           ]}
-          action={
-            <>
-              <Button
-                variant="contained"
-                sx={{ mr: 2, mt: 4 }}
-                component={RouterLink}
-                to={`${PATH_DASHBOARD.admin.onsiteProject}/${params.employeeId}`}
-                startIcon={<Icon icon={plusFill} />}
-              >
-                New Project
-              </Button>{' '}
-            </>
-          }
+          // action={
+          //   <>
+          //     <Button
+          //       variant="contained"
+          //       sx={{ mr: 2, mt: 4 }}
+          //       component={RouterLink}
+          //       to={`${PATH_DASHBOARD.admin.onsiteProject}/${params.employeeId}`}
+          //       startIcon={<Icon icon={plusFill} />}
+          //     >
+          //       New Project
+          //     </Button>{' '}
+          //     <Button
+          //       variant="contained"
+          //       sx={{ mr: 2, mt: 4 }}
+          //       component={RouterLink}
+          //       to={`${PATH_DASHBOARD.admin.workedProj}/${params.employeeId}`}
+          //       startIcon={<Icon icon={viewFill} />}
+          //     >
+          //       Worked Project
+          //     </Button>{' '}
+          //   </>
+          // }
         />
         <FormikProvider value={formik}>
           <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
@@ -552,7 +565,7 @@ export default function UserEdit({ employeeId }) {
                         helperText={touched.password && errors.password}
                         // defaultValue={createPassword(numbers + upperCaseLetters + lowerCaseLetters + specialCharacters)}
                       />
-                      <FormControl fullWidth>
+                      {/* <FormControl fullWidth>
                         <DatePicker
                           required
                           label="DOJ"
@@ -575,7 +588,7 @@ export default function UserEdit({ employeeId }) {
                             <Field component={TextField} {...params} onKeyDown={(e) => e.preventDefault()} />
                           )}
                         />
-                      </FormControl>
+                      </FormControl> */}
                     </Stack>
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2, lg: 6 }}>
                       <FormControlLabel
@@ -590,7 +603,7 @@ export default function UserEdit({ employeeId }) {
                         label={checked ? 'Active' : 'Not Active'}
                         labelPlacement="end"
                       />
-                      <FormControlLabel
+                      {/* <FormControlLabel
                         fullWidth
                         {...getFieldProps('is_bulk_upload')}
                         control={<Switch checked={isBulkChecked} onChange={handleBulkUpload} />}
@@ -619,7 +632,7 @@ export default function UserEdit({ employeeId }) {
                             <Field component={TextField} {...params} onKeyDown={(e) => e.preventDefault()} />
                           )}
                         />
-                      </FormControl>
+                      </FormControl> */}
                       <TextField
                         fullWidth
                         size="medium"
@@ -635,7 +648,7 @@ export default function UserEdit({ employeeId }) {
                     {/* <TextField
                       // style={{ width: 300 }}
                       type="number"
-                      label="Date Freeze"
+                       label="Date Freeze"
                       {...getFieldProps('date_freeze')}
                       fullWidth
                     /> */}

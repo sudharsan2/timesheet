@@ -161,7 +161,10 @@ export const postProjectDetailsAsync = createAsyncThunk(
   'project/postProjectDetails',
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await api.methods.postData('/techstep/auth/service/postProjectDetails', payload);
+      const response = await api.methods.postData(
+        'https://techstephub.focusrtech.com:6060/techstep/auth/service/postProjectDetails',
+        payload
+      );
       return response.data;
     } catch (err) {
       return rejectWithValue(err.data);
@@ -174,7 +177,7 @@ export const approveOrRejectTravelReqAsync = createAsyncThunk(
   async (payload, { rejectWithValue, dispatch }) => {
     try {
       const response = await api.methods.putData(
-        'https://secure.focusrtech.com:5050/techstep/api/Travel/Service/approveOrRejectTravelReq',
+        'https://secure.focusrtech.com:3030/techstep/api/Travel/Service/approveOrRejectTravelReq',
         payload
       );
       console.log(response.data);
@@ -370,10 +373,10 @@ const projectSlice = createSlice({
     }),
     [postProjectDetailsAsync.pending]: (state) => ({ ...state, isLoading: true }),
     [postProjectDetailsAsync.fulfilled]: (state, action) => {
-      console.log('Uploaded Successfully!');
+      console.log('Uploaded Successfully!', action.payload);
       return {
         ...state,
-        msg: action.payload.message,
+        msg: 'Update Successfully',
         isLoading: false
       };
     },

@@ -37,7 +37,8 @@ const TABLE_HEAD = [
   { id: 'calendarName', label: 'Calendar Name', alignRight: false, margin: '' },
   { id: 'description', label: 'Project Description', alignRight: false, margin: '' },
   { id: 'start_Date', label: 'Start_Date', alignRight: false, margin: '' },
-  { id: 'end_Date', label: 'End_Date', alignRight: false, margin: '' }
+  { id: 'end_Date', label: 'End_Date', alignRight: false, margin: '' },
+  { id: 'project_Type', label: 'Type', alignRight: false, margin: '' }
   // { id: 'holidays', label: 'Exception Date', alignRight: false, margin: '' }
   // { id: 'workingDays', label: 'Working Days', alignRight: false, margin: '' }
 ];
@@ -65,9 +66,15 @@ function applySortFilter(array, comparator, query) {
     if (order !== 0) return order;
     return a[1] - b[1];
   });
+
   if (query) {
-    return filter(array, (_user) => _user.proj_Name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => {
+      const projNameMatch = _user.proj_Name.toLowerCase().includes(query.toLowerCase());
+      const projectTypeMatch = _user.project_Type.toLowerCase().includes(query.toLowerCase());
+      return projNameMatch || projectTypeMatch;
+    });
   }
+
   return stabilizedThis.map((el) => el[0]);
 }
 
@@ -195,7 +202,7 @@ export default function ProjectCreate() {
                       description,
                       start_Date: startDate,
                       end_Date: endDate,
-                      holidays
+                      project_Type: projectType
                       // workingDays
                     } = row;
                     const isItemSelected = selected.indexOf(projId) !== -1;
@@ -225,8 +232,24 @@ export default function ProjectCreate() {
                         </TableCell>
                         <TableCell align="left">{calendarName}</TableCell>
                         <TableCell align="left">{description}</TableCell>
-                        <TableCell align="left">{String(startDate).slice(0, 10)} </TableCell>
-                        <TableCell align="left">{String(endDate).slice(0, 10)}</TableCell>
+                        <TableCell align="left">
+                          {' '}
+                          {startDate &&
+                            `${String(startDate).split('-')[2].slice(0, 2)}-${new Date(startDate).toLocaleString(
+                              'en-us',
+                              {
+                                month: 'short'
+                              }
+                            )}-${String(startDate).split('-')[0]}`}{' '}
+                        </TableCell>
+                        <TableCell align="left">
+                          {' '}
+                          {endDate &&
+                            `${String(endDate).split('-')[2].slice(0, 2)}-${new Date(endDate).toLocaleString('en-us', {
+                              month: 'short'
+                            })}-${String(endDate).split('-')[0]}`}
+                        </TableCell>
+                        <TableCell align="left">{projectType}</TableCell>
                         {/* <TableCell align="left">
                           {holidays.map(({ offDate }) => {
                             console.log('ghd', offDate);
@@ -273,156 +296,3 @@ export default function ProjectCreate() {
     </Page>
   );
 }
-
-// import { filter } from 'lodash';
-// import { Container, Typography, Button, Icon, TableContainer, Table } from '@mui/material';
-// import { useState, useEffect } from 'react';
-// import { Link as RouterLink } from 'react-router-dom';
-// import plusFill from '@iconify/icons-eva/plus-fill';
-// import { PATH_DASHBOARD } from '../../routes/paths';
-// import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
-// import Page from '../../components/Page';
-// import useSettings from '../../hooks/useSettings';
-// import { useDispatch, useSelector } from '../../redux/store';
-// import Scrollbar from '../../components/Scrollbar';
-// import { UserListHead, UserListToolbar } from '../../components/_administrator/list';
-
-// const TABLE_HEAD = [
-//   { id: 'project_id', label: 'Project Id', alignRight: false, margin: '' },
-//   { id: 'empId', label: 'Employee Id', alignRight: false, margin: '' },
-//   { id: 'empName', label: 'Employee Name', alignRight: false, margin: '' },
-//   { id: 'projName', label: 'Project Name', alignRight: false, margin: '' },
-//   { id: 'projDescription', label: 'Project Description', alignRight: false, margin: '' },
-//   { id: 'fromDate', label: 'Start Date', alignRight: false, margin: '' },
-//   { id: 'endDate', label: 'End Date', alignRight: false, margin: '' }
-// ];
-
-// function descendingComparator(a, b, orderBy) {
-//   if (b[orderBy] < a[orderBy]) {
-//     return -1;
-//   }
-//   if (b[orderBy] > a[orderBy]) {
-//     return 1;
-//   }
-//   return 0;
-// }
-
-// function getComparator(order, orderBy) {
-//   return order === 'desc'
-//     ? (a, b) => descendingComparator(a, b, orderBy)
-//     : (a, b) => -descendingComparator(a, b, orderBy);
-// }
-
-// function applySortFilter(array, comparator, query) {
-//   const stabilizedThis = array.map((el, index) => [el, index]);
-//   stabilizedThis.sort((a, b) => {
-//     const order = comparator(a[0], b[0]);
-//     if (order !== 0) return order;
-//     return a[1] - b[1];
-//   });
-//   if (query) {
-//     return filter(array, (_user) => _user.type.toLowerCase().indexOf(query.toLowerCase()) !== -1);
-//   }
-//   return stabilizedThis.map((el) => el[0]);
-// }
-
-// export default function ProjectCreate() {
-//   // return <Typography variant="h1">Ajay</Typography>;
-//   const { themestretch } = useSettings();
-//   const [selected, setSelected] = useState([]);
-//   const [page, setPage] = useState(0);
-//   const [order, setOrder] = useState('asc');
-//   //   const { userList } = useSelector();
-//   const [orderBy, setOrderBy] = useState('type');
-//   const [isViewOpen, setView] = useState(false);
-//   const [rowsPerPage, setRowsPerPage] = useState(5);
-
-//   const [filterName, setFilterName] = useState('');
-
-//   const handleRequestSort = (event, property) => {
-//     const isAsc = orderBy === property && order === 'asc';
-//     setOrder(isAsc ? 'desc' : 'asc');
-//     setOrderBy(property);
-//   };
-
-//   const handleFilterByName = (event) => {
-//     setPage(0);
-//     setFilterName(event.target.value);
-//   };
-
-//   //   const handleSelectAllClick = (event) => {
-//   //     if (event.target.checked) {
-//   //       const newSelecteds = userList.map((n) => n.id);
-//   //       setSelected(newSelecteds);
-//   //       return;
-//   //     }
-//   //     setSelected([]);
-//   //   };
-
-//   const handleChangePage = (event, newPage) => {
-//     setPage(newPage);
-//   };
-
-//   const handlePreview = (row) => {
-//     setView(true);
-//   };
-
-//   const handleChangeRowsPerPage = (event) => {
-//     setRowsPerPage(parseInt(event.target.value, 10));
-//     setPage(0);
-//   };
-
-//   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
-
-//   //   const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
-
-//   const isUserNotFound = filteredUsers.length === 0;
-
-//   const title = 'Project Creation';
-//   return (
-//     <Page title={title}>
-//       <Container maxWidth={themestretch ? false : 'lg'}>
-//         <HeaderBreadcrumbs
-//           heading={title}
-//           links={[
-//             { name: 'Dashboard', href: PATH_DASHBOARD.general.root },
-//             { name: 'Project Details' }
-//             // { name: 'List' }
-//           ]}
-//           action={
-//             <>
-//               <Button
-//                 varient="contained"
-//                 component={RouterLink}
-//                 to={PATH_DASHBOARD.task.taskCreate}
-//                 startIcon={<Icon icon={plusFill} />}
-//               >
-//                 {' '}
-//                 Create Project
-//               </Button>{' '}
-//             </>
-//           }
-//         />
-//         <card>
-//           <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
-
-//           <Scrollbar>
-//             <TableContainer sx={{ minWidth: 800 }}>
-//               <Table>
-//                 <UserListHead
-//                   order={order}
-//                   orderBy={orderBy}
-//                   headLabel={TABLE_HEAD}
-//                   //   rowCount={UserList.length}
-//                   numSelected={selected.length}
-//                   onRequestSort={handleRequestSort}
-//                   //   onSelectAllClick={handleSelectedAllClick}
-//                 />
-//               </Table>
-//             </TableContainer>
-//           </Scrollbar>
-//         </card>
-//       </Container>
-//     </Page>
-//   );
-// }

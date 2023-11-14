@@ -229,7 +229,7 @@ export const approveOrRejectIssueAssetAsync = createAsyncThunk(
   async (payload, { rejectWithValue, dispatch }) => {
     try {
       const response = await api.methods.putData(
-        'http://techstephub.focusrtech.com:5050/techstep/api/Assets/Service/approveOrRejectIssueAsset',
+        'http://techstephub.focusrtech.com:3030/techstep/api/Assets/Service/approveOrRejectIssueAsset',
         payload
       );
       console.log(response.data);

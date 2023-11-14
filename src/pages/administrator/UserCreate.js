@@ -115,9 +115,9 @@ export default function UserCreate() {
       .max(41, 'Must be lesser than 40 letters'),
     primaryProject: Yup.string().required('Primary Project is required'),
     designation: Yup.string().required('Designation is required'),
-    employeeId: Yup.string().required('Employee id is required'),
-    date_of_joining: Yup.string().required('Date of Join is required'),
-    date_of_birth: Yup.string().required('Date of Birth is required')
+    employeeId: Yup.string().required('Employee id is required')
+    // date_of_joining: Yup.string().required('Date of Join is required'),
+    // date_of_birth: Yup.string().required('Date of Birth is required')
     // avatarUrl: Yup.mixed().required('Avatar is required')
   });
 
@@ -477,7 +477,7 @@ export default function UserCreate() {
                     </Stack>
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
                       <TextField fullWidth type="number" label="Date Freeze" {...getFieldProps('date_freeze')} />
-                      <FormControl fullWidth>
+                      {/* <FormControl fullWidth>
                         <DatePicker
                           required
                           fullWidth
@@ -501,7 +501,7 @@ export default function UserCreate() {
                             <Field component={TextField} {...params} onKeyDown={(e) => e.preventDefault()} />
                           )}
                         />
-                      </FormControl>
+                      </FormControl> */}
                       <FormControlLabel
                         fullWidth
                         {...getFieldProps('is_bulk_upload')}
@@ -510,7 +510,7 @@ export default function UserCreate() {
                       />
                     </Stack>
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
-                      <FormControl fullWidth>
+                      {/* <FormControl fullWidth>
                         <DatePicker
                           required
                           fullWidth
@@ -534,7 +534,7 @@ export default function UserCreate() {
                             <Field component={TextField} {...params} onKeyDown={(e) => e.preventDefault()} />
                           )}
                         />
-                      </FormControl>
+                      </FormControl> */}
                       <FormControl fullWidth variant="outlined">
                         <InputLabel id="country-select-label">Country</InputLabel>
                         <Select

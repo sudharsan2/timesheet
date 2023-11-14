@@ -18,16 +18,16 @@ const useCurrentRole = (accessToken) => {
 export default function RoleBasedGuard({ accessibleRoles, children }) {
   const currentRole = useCurrentRole(localStorage.getItem('accessToken'));
 
-  if (!accessibleRoles.includes(currentRole)) {
-    return (
-      <Container>
-        <Alert severity="error">
-          <AlertTitle>Permission Denied</AlertTitle>
-          You do not have permission to access this page
-        </Alert>
-      </Container>
-    );
-  }
+  // if (!accessibleRoles.includes(currentRole)) {
+  //   return (
+  //     <Container>
+  //       <Alert severity="error">
+  //         <AlertTitle>Permission Denied</AlertTitle>
+  //         You do not have permission to access this page
+  //       </Alert>
+  //     </Container>
+  //   );
+  // }
 
   return <>{children}</>;
 }

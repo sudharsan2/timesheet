@@ -92,7 +92,7 @@ export default function ProjectAcknowledge() {
   useEffect(() => {
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/auth/service/projectAck/${resetToken}/${employeeId}/${oldManagerId}/${newManagerId}/${project}`,
+        `https://techstephub.focusrtech.com:3030/techstep/auth/service/projectAck/${resetToken}/${employeeId}/${oldManagerId}/${newManagerId}/${project}`,
         {
           headers: {
             'Content-Type': 'application/json'

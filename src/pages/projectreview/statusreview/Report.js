@@ -83,7 +83,7 @@ export default function Report() {
 
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getIdTypeBasedProject/${selectedValue}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getIdTypeBasedProject/${selectedValue}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ export default function Report() {
     };
     // Make a POST request to the API to get the Excel file
     axios
-      .post('https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getDailyReviewReport', payload, {
+      .post('https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getDailyReviewReport', payload, {
         responseType: 'arraybuffer', // Ensure binary response
         headers: headers // Include the headers with the token
       })
@@ -167,7 +167,7 @@ export default function Report() {
     setLoadings(true);
     try {
       const response = await axios.get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/generatemilestone/${selectedProjectName}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/generatemilestone/${selectedProjectName}`,
         {
           responseType: 'blob',
           headers: {

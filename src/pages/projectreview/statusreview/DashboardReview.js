@@ -27,6 +27,9 @@ export default function DashboardReview() {
   const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
   const [projectHighlights, setProjectHighlights] = useState('');
   const [resourceUpdate, setResourceUpdate] = useState([]);
+  const [closedCount, setClosedCount] = useState('');
+  const [totalCount, setTotalCount] = useState('');
+  const [reportedCount, setReportedCount] = useState('');
   const [customerRequest, setCustomerRequest] = useState('');
   const [customerRequestOne, setCustomerRequestOne] = useState('');
   const [serviceRequest, setServiceRequest] = useState('');
@@ -68,7 +71,7 @@ export default function DashboardReview() {
 
   useEffect(() => {
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getAllProjects`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getAllProjects`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -98,7 +101,7 @@ export default function DashboardReview() {
   useEffect(() => {
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getSupportWeekNOStatus/${previousWeek}/${currentYear}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getSupportWeekNOStatus/${previousWeek}/${currentYear}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -133,7 +136,7 @@ export default function DashboardReview() {
 
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getOverAllProjStatusfchart/${projectName}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getOverAllProjStatusfchart/${projectName}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -144,13 +147,16 @@ export default function DashboardReview() {
       .then((res) => {
         console.log('supportChart', res.data);
         setChartSupport(res.data);
+        setClosedCount(res.data[0].total_CLOSED);
+        setTotalCount(res.data[0].total_MODULE_TOTAL);
+        setReportedCount(res.data[0].total_REPOTED);
       })
       .catch((err) => {
         console.log('chart', err);
       });
 
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getPrevWeekData/${projectName}`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getPrevWeekData/${projectName}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -166,7 +172,7 @@ export default function DashboardReview() {
 
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getSchedulerVarience/${projectName}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getSchedulerVarience/${projectName}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -201,7 +207,7 @@ export default function DashboardReview() {
 
   const labelStyle = {
     fontWeight: 'bold',
-    color: '#FF8080'
+    color: '#008080'
   };
 
   // Apply hover effect on fields
@@ -214,7 +220,7 @@ export default function DashboardReview() {
         sx={{
           fontWeight: 'bold',
           textAlign: 'center',
-          backgroundColor: '#FF8080',
+          backgroundColor: '#87CEEB',
           mt: -3,
           '@media (max-width: 768px)': {
             ml: -40
@@ -230,7 +236,11 @@ export default function DashboardReview() {
             <span style={labelStyle}>Project Name:</span> {projectName}
           </Typography>
         </Grid>
-
+        <Grid item xs={12} md={3}>
+          <Typography>
+            <span style={labelStyle}>Project Manager:</span> {projectManager}
+          </Typography>
+        </Grid>
         <Grid item xs={12} md={3}>
           <Typography>
             {' '}
@@ -252,7 +262,7 @@ export default function DashboardReview() {
               })}-${String(endDate).split('-')[0]}`}
           </Typography>
         </Grid>
-        <Grid item xs={12} md={3}>
+        {/* <Grid item xs={12} md={3}>
           <Typography>
             <span style={labelStyle}>Resource:</span>
             <div style={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -262,11 +272,6 @@ export default function DashboardReview() {
                 </Typography>
               ))}
             </div>
-          </Typography>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <Typography>
-            <span style={labelStyle}>Project Manager:</span> {projectManager}
           </Typography>
         </Grid>
         <Grid item xs={12} md={3}>
@@ -286,6 +291,16 @@ export default function DashboardReview() {
             <span style={labelStyle}>Inc/Req Closed:</span> : {closed}{' '}
           </Typography>
           <Divider orientation="vertical" />
+        </Grid> */}
+        <Grid item xs={12} md={3}>
+          <Typography style={{ display: 'flex', alignItems: 'baseline' }}>
+            <span style={labelStyle}>Resource:</span>
+            {resourceUpdate.map((resource, index) => (
+              <Typography key={index} component="span" style={{ whiteSpace: 'nowrap', marginRight: '8px' }}>
+                {resource.name},
+              </Typography>
+            ))}
+          </Typography>
         </Grid>
       </Grid>
 
@@ -293,8 +308,16 @@ export default function DashboardReview() {
       <Grid container direction="row" spacing={3}>
         <Grid container item xs={12} md={8}>
           <Grid item xs={12} md={2.5} sx={{ borderRight: '2px solid black' }}>
-            <Stack spacing={2}>
-              <Typography style={labelStyle}>Open Tickets {previousWeek}</Typography>
+            <Stack spacing={0.5}>
+              <Typography>
+                {' '}
+                <span style={labelStyle}>Inc/Req Reported:</span> {reported}{' '}
+              </Typography>
+              <Typography>
+                {' '}
+                <span style={labelStyle}>Inc/Req Closed</span> : {closed}{' '}
+              </Typography>
+              <Typography style={labelStyle}>Open Tickets</Typography>{' '}
               {ticketSummary.map((summary, index) => (
                 <Stack direction="row" spacing={2} key={`openTicketSummary${index}`}>
                   {summary.projectModule && <Typography>{summary.projectModule} :</Typography>}
@@ -328,27 +351,53 @@ export default function DashboardReview() {
 
         <Grid direction="row" item xs={12} md={4}>
           <Typography style={labelStyle}>Project Overall Summary for {projectName}</Typography>
-          <BarChart width={150} height={150} data={chartSupport}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            {/* <CartesianGrid strokeDasharray="2 2" /> */}
-            <Tooltip />
-            {/* <Legend /> */}
-            <Bar dataKey="total_CLOSED" fill="#228B22" name="Closed" />
-            <Bar dataKey="total_MODULE_TOTAL" fill="#FF0000" name="Open" />
-            <Bar dataKey="total_REPOTED" fill="#4169E1" name="Reported" />
-          </BarChart>
+          <Stack direction="row">
+            <BarChart width={150} height={150} data={chartSupport}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              {/* <CartesianGrid strokeDasharray="2 2" /> */}
+              <Tooltip />
+              {/* <Legend /> */}
+              <Bar dataKey="total_REPOTED" fill="#4169E1" name="Reported" />
+              <Bar dataKey="total_CLOSED" fill="#228B22" name="Closed" />
+              <Bar dataKey="total_MODULE_TOTAL" fill="#FF0000" name="Open" />
+            </BarChart>
+            <div style={{ flexDirection: 'row' }}>
+              <Typography sx={{ ml: 7, mt: 2, color: '#4169E1' }}>Reported: {reportedCount}</Typography>
+              <Typography sx={{ ml: 7, mt: 2, color: '#228B22' }}>Closed: {closedCount}</Typography>
+              <Typography sx={{ ml: 7, mt: 2, color: '#FF0000' }}>Opened: {totalCount}</Typography>
+            </div>
+          </Stack>
           <CustomLegend />
         </Grid>
       </Grid>
       <hr style={hrStyle} />
       <Grid container direction="row" spacing={2} sx={{ marginBottom: 2 }}>
-        <Grid item xs={12} md={5} sx={{ mt: 1 }}>
-          <Typography sx={fieldStyle}>
-            <span style={labelStyle}>Project Highlight:</span> {projectHighlights}
+        <Grid item xs={12} md={6} sx={{ mt: 1 }}>
+          <Typography sx={fieldStyle} style={{ height: 150, overflow: 'hidden' }}>
+            <span style={{ color: '#008080', fontWeight: 'bold' }}>Project Highlights:</span>
+            <div style={{ whiteSpace: 'pre-line' }}>{projectHighlights}</div>{' '}
           </Typography>
         </Grid>
-        <Grid item xs={12} md={7} sx={{ mt: 1 }}>
+        <Grid item xs={12} md={3} sx={{ mt: 1 }}>
+          <Typography sx={fieldStyle} style={{ height: 150, overflow: 'hidden' }}>
+            <span style={labelStyle}>Resource Update: </span> {resource}
+          </Typography>
+        </Grid>
+        <Grid item xs={12} md={3} sx={{ mt: 1 }}>
+          <Typography sx={fieldStyle} style={{ height: 75, overflow: 'hidden' }}>
+            <span style={labelStyle}>CR: </span>
+            {customerRequest}/{customerRequestOne}
+          </Typography>
+          <Typography sx={fieldStyle} style={{ height: 75, overflow: 'hidden' }}>
+            <span style={labelStyle}>SR: </span> {serviceRequest}/{serviceRequestOne}
+          </Typography>
+        </Grid>
+        {/* <Grid item xs={12} md={3} sx={{ mt: 1 }}>
+         
+        </Grid> */}
+
+        {/* <Grid item xs={12} md={7} sx={{ mt: 1 }}>
           <Stack direction="row" spacing={2}>
             <Typography sx={fieldStyle}>
               <span style={labelStyle}>Resource Update: </span>
@@ -361,7 +410,7 @@ export default function DashboardReview() {
               <span style={labelStyle}>SR: </span> {serviceRequest}/{serviceRequestOne}
             </Typography>
           </Stack>
-        </Grid>
+        </Grid> */}
       </Grid>
       <Typography sx={fieldStyle}>
         <div style={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -372,13 +421,13 @@ export default function DashboardReview() {
             >
               {risk.riskNo && (
                 <div>
-                  <span style={{ color: '#FF8080', fontWeight: 'bold' }}>Risk: </span>
+                  <span style={{ color: '#1E90FF', fontWeight: 'bold' }}>Risk: </span>
                   {risk.riskNo}
                 </div>
               )}
               {risk.riskPlan && (
                 <div>
-                  <span style={{ color: '#4BB543', fontWeight: 'bold' }}>Mitigation Plan: </span>
+                  <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>Mitigation Plan: </span>
                   {risk.riskPlan}
                 </div>
               )}
@@ -388,14 +437,14 @@ export default function DashboardReview() {
           {!risk.length && (
             <div style={{ display: 'flex', flexDirection: 'column', marginRight: '20px' }}>
               <div>
-                <span style={{ color: '#FF8080', fontWeight: 'bold' }}>Risk: </span>
-                <span style={{ color: '#FF8080', fontWeight: 'bold', marginLeft: 150 }}>Risk: </span>
-                <span style={{ color: '#FF8080', fontWeight: 'bold', marginLeft: 150 }}>Risk: </span>
+                <span style={{ color: '#1E90FF', fontWeight: 'bold' }}>Risk: </span>
+                <span style={{ color: '#1E90FF', fontWeight: 'bold', marginLeft: 150 }}>Risk: </span>
+                <span style={{ color: '#1E90FF', fontWeight: 'bold', marginLeft: 150 }}>Risk: </span>
               </div>
               <div>
-                <span style={{ color: '#4BB543', fontWeight: 'bold' }}>Mitigation Plan: </span>
-                <span style={{ color: '#4BB543', fontWeight: 'bold', marginLeft: 67 }}>Mitigation Plan: </span>
-                <span style={{ color: '#4BB543', fontWeight: 'bold', marginLeft: 67 }}>Mitigation Plan: </span>
+                <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>Mitigation Plan: </span>
+                <span style={{ color: '#4CAF50', fontWeight: 'bold', marginLeft: 67 }}>Mitigation Plan: </span>
+                <span style={{ color: '#4CAF50', fontWeight: 'bold', marginLeft: 67 }}>Mitigation Plan: </span>
               </div>
             </div>
           )}

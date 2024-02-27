@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Container,
   Autocomplete,
@@ -72,6 +73,8 @@ import { getUserDetailsFromAuth } from '../../redux/slices/authSlice';
 import TaskNotFound from '../../components/TaskNotFound';
 import { MIconButton } from '../../components/@material-extend';
 
+/*eslint-disable*/
+
 export default function TimesheetEntryScreen() {
   const { themeStretch } = useSettings();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -97,7 +100,7 @@ export default function TimesheetEntryScreen() {
   const tssDetails = useSelector(getTimesheetDetails);
   const categoryLOV = useSelector(getCategoryLOVFromTS);
   const projectLOV = useSelector(getProjectLOVFromTS);
-  const workMode = [{ value: 'Internal' }, { value: 'Work From Home' }, { value: 'Onsite' }];
+  const workMode = [{ modeOfWork: 'Internal' }, { modeOfWork: 'Work From Home' }, { modeOfWork: 'Onsite' }];
   const statuses = useSelector(getStatusLOVFromTS);
   const isLoading = useSelector(getIsLoadingFromTS);
   const error = useSelector(getErrorFromTS);
@@ -124,11 +127,23 @@ export default function TimesheetEntryScreen() {
   const [selectedProject, setSelectedProject] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState('');
   const [calPayroll, setCalPayroll] = React.useState('');
-  const [modePayroll, setModePayroll] = React.useState('');
+  console.log('two', tsDetails.modeofwork);
+  const [modePayroll, setModePayroll] = React.useState(tsDetails.modeofwork || '');
+
+  useEffect(() => {
+    console.log('TaskDetails ModeOfWork:', tsDetails.modeofwork);
+
+    if (tsDetails.modeofwork) {
+      setModePayroll({ modeOfWork: tsDetails.modeofwork });
+    }
+  }, [tsDetails.modeofwork]);
+
   const sumMins =
     taskdetails.length === 0 ? 0 : taskdetails.map((o) => o.minutes).reduce((a, c) => Number(a) + Number(c));
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - taskdetails.length) : 0;
+
+  const [workModeLov, setWorkModeLov] = useState('');
 
   const handleChange = (_date) => {
     if (_date) {
@@ -403,9 +418,11 @@ export default function TimesheetEntryScreen() {
 
   // const [selectedMode, setSelectedMode] = useState(null);
 
+  const token = localStorage.getItem('accessToken');
+
   const handleSubmit = (action) => {
     if (!modePayroll) {
-      enqueueSnackbar('Mode of WOrk is required', {
+      enqueueSnackbar('Mode of Work is required', {
         variant: 'error',
         action: (key) => (
           <MIconButton size="small" onClick={() => closeSnackbar(key)}>
@@ -480,7 +497,7 @@ export default function TimesheetEntryScreen() {
           action,
           taskDetails: taskdetails,
           calendar: calPayroll ? calPayroll.projectName : '',
-          modeOfWork: modePayroll ? modePayroll.value : ''
+          modeOfWork: modePayroll ? modePayroll.modeOfWork : ''
         }
       };
       dispatch(newCreateTimeSheetEntryAsync(payload));
@@ -525,7 +542,7 @@ export default function TimesheetEntryScreen() {
           action: 'submit',
           taskDetails: taskdetails,
           calendar: calPayroll ? calPayroll.projectName : '',
-          modeOfWork: modePayroll ? modePayroll.value : ''
+          modeOfWork: modePayroll ? modePayroll.modeOfWork : ''
         }
       };
 
@@ -566,17 +583,17 @@ export default function TimesheetEntryScreen() {
     if (tssDetails.modeOfWork) {
       setModePayroll({ value: tsDetails.modeOfWork });
     } else {
-      const modPayroll = localStorage.getItem('modePayroll');
-      if (modPayroll) {
-        const resultMP = modPayroll.includes('{"value');
-        if (resultMP) {
-          setModePayroll(JSON.parse(modPayroll));
-        } else {
-          setModePayroll('');
-        }
-      } else {
-        setModePayroll('');
-      }
+      // const modPayroll = localStorage.getItem('modePayroll');
+      // if (modPayroll) {
+      //   const resultMP = modPayroll.includes('{"value');
+      //   if (resultMP) {
+      //     setModePayroll(JSON.parse(modPayroll));
+      //   } else {
+      //     setModePayroll('');
+      //   }
+      // } else {
+      //   setModePayroll('');
+      // }
     }
   }, [tssDetails]);
 
@@ -587,20 +604,37 @@ export default function TimesheetEntryScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  React.useEffect(() => {
-    if (error) {
-      enqueueSnackbar(error, {
-        variant: 'error',
-        action: (key) => (
-          <MIconButton size="small" onClick={() => closeSnackbar(key)}>
-            <Icon icon={closeFill} />
-          </MIconButton>
-        )
+  // React.useEffect(() => {
+  //   if (error) {
+  //     enqueueSnackbar(error, {
+  //       variant: 'error',
+  //       action: (key) => (
+  //         <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+  //           <Icon icon={closeFill} />
+  //         </MIconButton>
+  //       )
+  //     });
+  //     dispatch(setErrorNull());
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [error]);
+
+  useEffect(() => {
+    axios
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/Timesheet/Service/getmodeofWork`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token
+        }
+      })
+      .then((res) => {
+        console.log('this is response data', res.data);
+        setWorkModeLov(res.data);
+      })
+      .catch((err) => {
+        console.log('Error', err);
       });
-      dispatch(setErrorNull());
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [error]);
+  }, []);
 
   return (
     <Page title={title}>
@@ -667,6 +701,7 @@ export default function TimesheetEntryScreen() {
                   fullWidth
                   minDate={previousWeek}
                   onChange={(newValue) => {
+                    setModePayroll('');
                     if (newValue) {
                       const parseddate = format(newValue, 'yyyy-MM-dd');
                       handleChange(parseddate);
@@ -733,6 +768,22 @@ export default function TimesheetEntryScreen() {
                   id="work-payroll"
                   value={modePayroll}
                   onChange={(_event, newValue) => {
+                    setModePayroll(newValue || '');
+                  }}
+                  options={workMode}
+                  getOptionLabel={(option) => option.modeOfWork || ''}
+                  renderInput={(params) => (
+                    <TextField size="small" fullWidth variant="outlined" {...params} label="Work Mode" />
+                  )}
+                />
+                {/* <Autocomplete
+                  disablePortal
+                  fullWidth
+                  size="small"
+                  autoHighlight
+                  id="work-payroll"
+                  value={modePayroll}
+                  onChange={(_event, newValue) => {
                     console.log(newValue);
                     if (newValue) {
                       const nameVal = {
@@ -740,19 +791,17 @@ export default function TimesheetEntryScreen() {
                       };
                       console.log(nameVal);
                       setModePayroll(nameVal);
-                      localStorage.setItem('modePayroll', JSON.stringify(nameVal));
                     } else {
                       setModePayroll('');
-                      localStorage.setItem('modePayroll', '');
                     }
                   }}
                   options={workMode}
-                  isOptionEqualToValue={(option, value) => option.value === value.value}
-                  getOptionLabel={(option) => option.value || ''}
+                  isOptionEqualToValue={(option, value) => option.modeOfWork === value.modeOfWork}
+                  getOptionLabel={(option) => option.modeOfWork || ''}
                   renderInput={(params) => (
                     <TextField size="small" fullWidth variant="outlined" {...params} label="Work Mode" />
                   )}
-                />
+                /> */}
                 <div>
                   <Stack spacing={2} direction={{ xs: 'column', sm: 'column', md: 'row' }}>
                     {!isNewRowEnabled && (

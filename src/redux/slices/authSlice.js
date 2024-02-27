@@ -30,10 +30,11 @@ const setSession = (accessToken) => {
   if (accessToken) {
     localStorage.setItem('accessToken', accessToken);
     // This function below will handle when token is expired
-    const { exp, role, username, emailId, selectedDate } = jwtDecode(accessToken);
+    const { exp, role, username, emailId, manager } = jwtDecode(accessToken);
     localStorage.setItem('role', role);
     localStorage.setItem('empId', username);
     localStorage.setItem('Email', emailId);
+    localStorage.setItem('manager', manager);
 
     handleTokenExpired(exp);
   } else {

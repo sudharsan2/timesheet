@@ -43,7 +43,7 @@ const TABLE_HEAD = [
   // { id: 'travel_id', label: 'SNo', alignRight: false, margin: '' },
   {},
   { id: 'employee_name', label: 'Name', alignRight: false, margin: '' },
-  { id: 'emp_id', label: 'EmpI Id', alignRight: false, margin: '' },
+  { id: 'emp_id', label: 'Emp Id', alignRight: false, margin: '' },
   { id: 'project', label: 'Project Name', alignRight: false, margin: '' },
   { id: 'location_from', label: 'Location From', alignRight: false, margin: '' },
   { id: 'location_to', label: 'Location To', alignRight: false, margin: '' },

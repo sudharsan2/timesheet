@@ -218,7 +218,7 @@ export default function EditReview() {
 
   useEffect(() => {
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getAllProjects`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getAllProjects`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -241,6 +241,7 @@ export default function EditReview() {
         console.log('6', projName);
         forceUpdate(); // Force a re-render
         setProjManager(newArr.project_Manager);
+        console.log('fds', projManager);
         setCalendarName(newArr.calendarName);
         setDesc(newArr.description);
         setStartDate(newArr.start_Date);
@@ -286,7 +287,7 @@ export default function EditReview() {
 
   useEffect(() => {
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getListOfStatus`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getListOfStatus`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -323,7 +324,7 @@ export default function EditReview() {
 
       // If validation succeeds, make the API request
       const response = await axios.post(
-        'https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/createUpdateProject',
+        'https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/createUpdateProject',
         {
           proj_Id: params.projId,
           project_Type: String(selectedProjectType),
@@ -421,7 +422,7 @@ export default function EditReview() {
 
       // If validation succeeds, make the API request
       const response = await axios.post(
-        'https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/createUpdateProject',
+        'https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/createUpdateProject',
         {
           proj_Id: params.projId,
           project_Type: String(selectedProjectType),
@@ -637,7 +638,7 @@ export default function EditReview() {
                               optionLabel="value"
                               optionValue="value"
                               filter
-                              placeholder="Resource"
+                              placeholder="Consultant Name"
                               maxSelectedLabels={7}
                               value={empName}
                               onChange={(e) => setEmpName(e.target.value)}
@@ -650,7 +651,7 @@ export default function EditReview() {
                     <Grid item xs={12} sm={12} md={12}>
                       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
                         <FormControl fullWidth>
-                          <DatePicker
+                          {/* <DatePicker
                             required
                             fullWidth
                             label="Start Date *"
@@ -672,10 +673,17 @@ export default function EditReview() {
                             onKeyDown={(e) => e.preventDefault()}
                             disabled={isLoading}
                             renderInput={(params) => <TextField {...params} size="small" />}
+                          /> */}
+                          <TextField
+                            type="date"
+                            size="small"
+                            value={formatDateToDDMMYYYY(startDate)} // Format date when displaying
+                            // onChange={(e) => handleInputChange(index, 'startDate', e.target.value)}
+                            onChange={(e) => setStartDate(e.target.value)}
                           />
                         </FormControl>
                         <FormControl fullWidth>
-                          <DatePicker
+                          {/* <DatePicker
                             fullWidth
                             label="End Date *"
                             value={endDate}
@@ -697,10 +705,17 @@ export default function EditReview() {
                             onKeyDown={(e) => e.preventDefault()}
                             disabled={isLoading}
                             renderInput={(params) => <TextField {...params} size="small" />}
+                          /> */}
+                          <TextField
+                            type="date"
+                            size="small"
+                            value={formatDateToDDMMYYYY(endDate)} // Format date when displaying
+                            // onChange={(e) => handleInputChange(index, 'endDate', e.target.value)}
+                            onChange={(e) => setEndDate(e.target.value)}
                           />
                         </FormControl>
                         <FormControl fullWidth>
-                          <DatePicker
+                          {/* <DatePicker
                             fullWidth
                             label="Actual Completion Date *"
                             value={actual}
@@ -721,6 +736,13 @@ export default function EditReview() {
                             onKeyDown={(e) => e.preventDefault()}
                             disabled={isLoading}
                             renderInput={(params) => <TextField {...params} size="small" />}
+                          /> */}
+                          <TextField
+                            type="date"
+                            size="small"
+                            value={formatDateToDDMMYYYY(actual)} // Format date when displaying
+                            // onChange={(e) => handleInputChange(index, 'actual', e.target.value)}
+                            onChange={(e) => setActual(e.target.value)}
                           />
                         </FormControl>
                       </Stack>
@@ -833,7 +855,7 @@ export default function EditReview() {
                               optionLabel="value"
                               optionValue="value"
                               filter
-                              placeholder="Resource"
+                              placeholder="Consultant Name"
                               maxSelectedLabels={7}
                               value={empName}
                               onChange={(e) => setEmpName(e.target.value)}
@@ -846,7 +868,7 @@ export default function EditReview() {
                     <Grid item xs={12} sm={12} md={12}>
                       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
                         <FormControl fullWidth>
-                          <DatePicker
+                          {/* <DatePicker
                             required
                             fullWidth
                             label="Start Date *"
@@ -868,10 +890,17 @@ export default function EditReview() {
                             onKeyDown={(e) => e.preventDefault()}
                             disabled={isLoading}
                             renderInput={(params) => <TextField {...params} size="small" />}
+                          /> */}
+                          <TextField
+                            type="date"
+                            size="small"
+                            value={formatDateToDDMMYYYY(startDate)} // Format date when displaying
+                            // onChange={(e) => handleInputChange(index, 'startDate', e.target.value)}
+                            onChange={(e) => setStartDate(e.target.value)}
                           />
                         </FormControl>
                         <FormControl fullWidth>
-                          <DatePicker
+                          {/* <DatePicker
                             fullWidth
                             label="End Date *"
                             value={endDate}
@@ -893,10 +922,17 @@ export default function EditReview() {
                             onKeyDown={(e) => e.preventDefault()}
                             disabled={isLoading}
                             renderInput={(params) => <TextField {...params} size="small" />}
+                          /> */}
+                          <TextField
+                            type="date"
+                            size="small"
+                            value={formatDateToDDMMYYYY(endDate)} // Format date when displaying
+                            // onChange={(e) => handleInputChange(index, 'endDate', e.target.value)}
+                            onChange={(e) => setEndDate(e.target.value)}
                           />
                         </FormControl>
                         <FormControl fullWidth>
-                          <DatePicker
+                          {/* <DatePicker
                             fullWidth
                             label="Actual Completion Date *"
                             value={actual}
@@ -917,6 +953,13 @@ export default function EditReview() {
                             onKeyDown={(e) => e.preventDefault()}
                             disabled={isLoading}
                             renderInput={(params) => <TextField {...params} size="small" />}
+                          /> */}
+                          <TextField
+                            type="date"
+                            size="small"
+                            value={formatDateToDDMMYYYY(actual)} // Format date when displaying
+                            // onChange={(e) => handleInputChange(index, 'actual', e.target.value)}
+                            onChange={(e) => setActual(e.target.value)}
                           />
                         </FormControl>
                       </Stack>

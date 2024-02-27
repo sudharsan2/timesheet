@@ -101,7 +101,7 @@ const ProjectSequence = () => {
 
   useEffect(() => {
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getIdProjectSequence/Support`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getIdProjectSequence/Support`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -119,7 +119,7 @@ const ProjectSequence = () => {
 
   useEffect(() => {
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getIdProjectSequence/Fixed`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getIdProjectSequence/Fixed`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -192,7 +192,7 @@ const ProjectSequence = () => {
     };
 
     axios
-      .post('https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/UpdateSequence', payload, {
+      .post('https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/UpdateSequence', payload, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}` // Set the Authorization header with the token
@@ -222,7 +222,7 @@ const ProjectSequence = () => {
     };
 
     axios
-      .post('https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/UpdateSequence', payload, {
+      .post('https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/UpdateSequence', payload, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}` // Set the Authorization header with the token

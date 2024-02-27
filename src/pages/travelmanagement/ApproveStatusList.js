@@ -92,7 +92,7 @@ export default function ApprovalListToolbar() {
     axios
       .get(
         // "http://66.85.137.50:5050/eprocurement/api/Users/Service/getListOfUsers",
-        'https://secure.focusrtech.com:3030/techstep/api/Travel/Service/getListOfAllTravelDetails',
+        'https://techstephub.focusrtech.com:3030/techstep/api/Travel/Service/getListOfAllTravelDetails',
         {
           headers: {
             'Content-Type': 'application/json',
@@ -140,7 +140,7 @@ export default function ApprovalListToolbar() {
       axios
         .put(
           // "http://66.85.137.50:5050/eprocurement/api/auth/signup",
-          'https://secure.focusrtech.com:3030/techstep/api/Travel/Service/changeStatusAdmin',
+          'https://techstephub.focusrtech.com:3030/techstep/api/Travel/Service/changeStatusAdmin',
           [
             {
               // id: projectDetails.id || '',

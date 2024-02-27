@@ -22,7 +22,8 @@ import {
   Checkbox,
   Tooltip,
   IconButton,
-  LinearProgress
+  LinearProgress,
+  CircularProgress
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import closeFill from '@iconify/icons-eva/close-fill';
@@ -219,6 +220,7 @@ export default function TimesheetApproval() {
   const { themeStretch } = useSettings();
   const filter = useSelector(getFilterTimesheetAppr);
   const isLoading = useSelector(getIsLoadingFromTSAppr);
+  const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
 
   // useEffect(() => {
@@ -319,7 +321,7 @@ export default function TimesheetApproval() {
 
   const handleBulkApproval = () => {
     const payload = [...selected];
-
+    setLoading(true);
     dispatch(postBulkApproveDetailsAsync(payload.map((_x) => ({ id: _x }))))
       .then(() => {
         enqueueSnackbar('Approved Successfully', {
@@ -342,6 +344,9 @@ export default function TimesheetApproval() {
             </MIconButton>
           )
         });
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -351,6 +356,24 @@ export default function TimesheetApproval() {
 
   return (
     <Page title={title}>
+      {loading && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999
+          }}
+        >
+          <CircularProgress />
+        </div>
+      )}{' '}
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
           heading={title}

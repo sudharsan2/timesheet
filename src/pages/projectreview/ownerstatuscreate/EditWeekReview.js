@@ -72,6 +72,7 @@ export default function EditWeekReview() {
   const [open, setOpen] = React.useState(false);
   const [close, setCloseView] = useState(true);
   const [weekNos, setWeekNos] = useState('');
+  const [revDate, setRevDate] = useState('');
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -104,7 +105,7 @@ export default function EditWeekReview() {
   useEffect(() => {
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getProjectForReviewUpdate/${params.projId}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getProjectForReviewUpdate/${params.projId}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -136,6 +137,7 @@ export default function EditWeekReview() {
         setWeekNos(res.data[0].weekNo);
         setOpenTicketId(res.data[0].open_ticket_id);
         setRiskMitigationId(res.data[0].risk_mitigation_id);
+        setRevDate(res.data[0].reviewDate);
         console.log('openticid', openTicketId);
 
         if (res.data[0] && Array.isArray(res.data[0].openTicketSummary)) {
@@ -175,7 +177,7 @@ export default function EditWeekReview() {
 
   useEffect(() => {
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getAllProjects`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getAllProjects`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -340,7 +342,7 @@ export default function EditWeekReview() {
 
       // If validation succeeds, make the API request
       const response = await axios.post(
-        'https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/createUpdateSupportProject',
+        'https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/createUpdateSupportProject',
         {
           projectName: String(projectName),
           projectManager: String(projManagerName),
@@ -424,7 +426,7 @@ export default function EditWeekReview() {
 
   useEffect(() => {
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getListOfModules`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getListOfModules`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -461,7 +463,7 @@ export default function EditWeekReview() {
 
       // If validation succeeds, make the API request
       const response = await axios.post(
-        'https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/createUpdateSupportProject',
+        'https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/createUpdateSupportProject',
         {
           proj_Id: projeId,
           projectName: String(projectName),
@@ -578,7 +580,7 @@ export default function EditWeekReview() {
                         required
                         fullWidth
                         label="Date"
-                        value={fridayDate}
+                        value={String(revDate).slice(0, 10)}
                         disabled
                         // {...getFieldProps('proj_Name')}
                         // error={Boolean(touched.proj_Name && errors.proj_Name)}

@@ -213,11 +213,15 @@ export default function Router() {
                 element: <RequestForms />
               },
               {
+                path: 'req-Edit/:id',
+                element: <RequestEdit />
+              },
+              {
                 path: 'request-approval',
                 element: <RequestApproval />
               },
               {
-                path: 'status-approval',
+                path: 'status-approval/:id',
                 element: <StatusApproval />
               },
               {
@@ -227,6 +231,10 @@ export default function Router() {
               {
                 path: 'reviewed-status',
                 element: <ReviewedStatus />
+              },
+              {
+                path: 'task-approval',
+                element: <TaskApproval />
               }
             ]
           },
@@ -543,10 +551,12 @@ const ApproveStatusList = Loadable(lazy(() => import('../pages/travelmanagement/
 const ApprovalListTool = Loadable(lazy(() => import('../pages/travelmanagement/ApprovalListTool')));
 const RequestWFH = Loadable(lazy(() => import('../pages/wfhrequest/RequestWFH')));
 const RequestForms = Loadable(lazy(() => import('../pages/wfhrequest/RequestForm')));
+const RequestEdit = Loadable(lazy(() => import('../pages/wfhrequest/RequestEdit')));
 const RequestApproval = Loadable(lazy(() => import('../pages/wfhrequest/RequestApproval')));
 const StatusApproval = Loadable(lazy(() => import('../pages/wfhrequest/StatusApproval')));
 const EodStatus = Loadable(lazy(() => import('../pages/wfhrequest/EodStatus')));
 const ReviewedStatus = Loadable(lazy(() => import('../pages/wfhrequest/ReviewedStatus')));
+const TaskApproval = Loadable(lazy(() => import('../pages/wfhrequest/TaskApproval')));
 
 const ProjectSequence = Loadable(lazy(() => import('../pages/projectreview/ProjectSequence')));
 const FindProject = Loadable(lazy(() => import('../pages/projectreview/ownerstatuscreate/FindProject')));

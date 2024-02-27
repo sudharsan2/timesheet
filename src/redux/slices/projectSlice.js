@@ -162,7 +162,7 @@ export const postProjectDetailsAsync = createAsyncThunk(
   async (payload, { rejectWithValue }) => {
     try {
       const response = await api.methods.postData(
-        'https://techstephub.focusrtech.com:6060/techstep/auth/service/postProjectDetails',
+        'https://techstephub.focusrtech.com:3030/techstep/auth/service/postProjectDetails',
         payload
       );
       return response.data;
@@ -177,7 +177,7 @@ export const approveOrRejectTravelReqAsync = createAsyncThunk(
   async (payload, { rejectWithValue, dispatch }) => {
     try {
       const response = await api.methods.putData(
-        'https://secure.focusrtech.com:3030/techstep/api/Travel/Service/approveOrRejectTravelReq',
+        'https://techstephub.focusrtech.com:3030/techstep/api/Travel/Service/approveOrRejectTravelReq',
         payload
       );
       console.log(response.data);

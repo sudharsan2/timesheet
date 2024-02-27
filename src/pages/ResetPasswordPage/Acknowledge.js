@@ -90,7 +90,7 @@ export default function Acknowledge() {
   useEffect(() => {
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/auth/service/postAck/${resetToken}/${employeeId}/${oldManagerId}/${newManagerId}`,
+        `https://techstephub.focusrtech.com:3030/techstep/auth/service/postAck/${resetToken}/${employeeId}/${oldManagerId}/${newManagerId}`,
         {
           headers: {
             'Content-Type': 'application/json'

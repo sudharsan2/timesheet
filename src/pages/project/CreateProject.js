@@ -243,7 +243,7 @@ export default function CreateProject() {
       }
       // If validation succeeds, make the API request
       const response = await axios.post(
-        'https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/createUpdateProject',
+        'https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/createUpdateProject',
         {
           project_Type: String(selectedProjectType),
           proj_Name: String(projName),
@@ -301,7 +301,7 @@ export default function CreateProject() {
 
   useEffect(() => {
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getListOfStatus`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getListOfStatus`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -357,7 +357,7 @@ export default function CreateProject() {
 
       // If validation succeeds, make the API request
       const response = await axios.post(
-        'https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/createUpdateProject',
+        'https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/createUpdateProject',
         {
           project_Type: String(selectedProjectType),
           proj_Name: String(projName),
@@ -621,9 +621,9 @@ export default function CreateProject() {
                             fullWidth
                             value={startDate}
                             onChange={startChange}
-                            inputProps={{
-                              min: new Date().toISOString().split('T')[0] // Set the minimum date to today
-                            }}
+                            // inputProps={{
+                            //   min: new Date().toISOString().split('T')[0] // Set the minimum date to today
+                            // }}
                           />
                         </FormControl>
                         <FormControl fullWidth>
@@ -770,9 +770,9 @@ export default function CreateProject() {
                             fullWidth
                             value={startDate}
                             onChange={startChange}
-                            inputProps={{
-                              min: new Date().toISOString().split('T')[0] // Set the minimum date to today
-                            }}
+                            // inputProps={{
+                            //   min: new Date().toISOString().split('T')[0] // Set the minimum date to today
+                            // }}
                           />
                         </FormControl>
                         <FormControl fullWidth>

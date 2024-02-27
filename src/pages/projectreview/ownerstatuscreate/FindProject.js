@@ -56,8 +56,8 @@ export default function FindProject() {
     const isEmployeeF1194OrF1259 = loggedInEmployeeId === 'C112' || loggedInEmployeeId === 'F1259';
 
     const apiUrl = isEmployeeF1194OrF1259
-      ? `https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getTypeBasedProject/${selectedRadio}`
-      : `https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/ProjectOwnerList/${selectedRadio}`;
+      ? `https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getTypeBasedProject/${selectedRadio}`
+      : `https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/ProjectOwnerList/${selectedRadio}`;
 
     axios
       .get(apiUrl, {

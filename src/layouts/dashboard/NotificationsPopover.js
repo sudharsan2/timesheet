@@ -121,7 +121,7 @@ export default function NotificationsPopover() {
 
   useEffect(() => {
     axios
-      .get('https://techstephub.focusrtech.com:6060/techstep/api/notification/service/getMessage', {
+      .get('https://techstephub.focusrtech.com:3030/techstep/api/notification/service/getMessage', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -200,7 +200,7 @@ export default function NotificationsPopover() {
       return;
     }
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/notification/service/markRead?id=${notId}`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/notification/service/markRead?id=${notId}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token

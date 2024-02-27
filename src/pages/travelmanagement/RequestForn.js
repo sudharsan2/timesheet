@@ -160,7 +160,8 @@ export default function RequestForm() {
       acc_location: '',
       hotel_name: '',
       checkin_date_time: '',
-      checkout_date_time: ''
+      checkout_date_time: '',
+      remarks: ''
     },
     validationSchema: NewUserSchema,
     onSubmit: async (values, { setSubmitting, setErrors, resetForm }) => {
@@ -177,18 +178,19 @@ export default function RequestForm() {
           acc_location: values.acc_location,
           hotel_name: values.hotel_name,
           checkin_date_time: values.checkin_date_time,
-          checkout_date_time: values.checkout_date_time
+          checkout_date_time: values.checkout_date_time,
+          remarks: values.remarks
         };
         await dispatch(createTravelDetailsAsync(payload));
         resetForm();
-        // enqueueSnackbar('Created successfully', {
-        //   variant: 'success',
-        //   action: (key) => (
-        //     <MIconButton size="small" onClick={() => closeSnackbar(key)}>
-        //       <Icon icon={closeFill} />
-        //     </MIconButton>
-        //   )
-        // });
+        enqueueSnackbar('Created successfully', {
+          variant: 'success',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
         setSubmitting(false);
       } catch (error) {
         console.error(error);
@@ -407,6 +409,21 @@ export default function RequestForm() {
                           {...getFieldProps('location_to')}
                           error={Boolean(touched.location_to && errors.location_to)}
                           helperText={touched.location_to && errors.location_to}
+                        />
+                      </Stack>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12}>
+                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
+                        <TextField
+                          required
+                          fullWidth
+                          size="small"
+                          label="Remarks"
+                          multiline
+                          rows={2}
+                          {...getFieldProps('remarks')}
+                          error={Boolean(touched.remarks && errors.remarks)}
+                          helperText={touched.remarks && errors.remarks}
                         />
                       </Stack>
                     </Grid>

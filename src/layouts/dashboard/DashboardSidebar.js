@@ -21,7 +21,8 @@ import {
   CRMandManagerSidebar,
   ManagerRepSidebar,
   travelRequest,
-  pmoExcecutive
+  pmoExcecutive,
+  roleManager
 } from './SidebarConfig';
 import { getUserDetailsFromAuth } from '../../redux/slices/authSlice';
 
@@ -123,6 +124,8 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
         return travelRequest;
       case role === 'PMO_EXCECUTIVE':
         return pmoExcecutive;
+      case role === 'ROLE_MANAGER':
+        return roleManager;
       default:
         return sidebarConfig;
     }

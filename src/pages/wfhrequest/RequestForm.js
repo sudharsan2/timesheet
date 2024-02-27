@@ -2,101 +2,83 @@ import {
   FormControl,
   FormHelperText,
   Grid,
-  Typography,
   Container,
   Card,
   Stack,
   TextField,
   Box,
-  Autocomplete,
   InputLabel,
-  FormControlLabel,
-  Checkbox,
   Select,
   MenuItem
 } from '@mui/material';
-import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { MultiSelect } from 'primereact/multiselect';
-import * as Yup from 'yup';
+import axios from 'axios';
 import { Icon } from '@iconify/react';
 import closeFill from '@iconify/icons-eva/close-fill';
 import { useNavigate } from 'react-router';
 import { useSnackbar } from 'notistack';
 import { DatePicker, LoadingButton } from '@mui/lab';
-import { format, addDays } from 'date-fns';
+import { addDays, format, isWithinInterval } from 'date-fns';
 import React, { useState, useEffect } from 'react';
-import { Form, FormikProvider, useFormik, Field } from 'formik';
-import { createDispatchHook, useDispatch, useSelector } from 'react-redux';
+
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  createTravelDetailsAsync,
-  getMsgFromUser,
-  getErrorFromUser,
+  createWorkFromRequestAsync,
+  selectIsWfhLoading,
+  selectWfhData,
   setErrorNull,
-  setMsgNull,
-  getIsLoadingFromUser
-} from '../../redux/slices/projectSlice';
-import { getAllManagersActionAsync } from '../../redux/slices/userSlice';
-import { getProjectLOVFromTS, getProjectLOVAsync } from '../../redux/slices/timesheetSlice';
-import { getAllProjectsAsync } from '../../redux/slices/projSlice';
+  selectWfhError
+} from '../../redux/slices/WfhSlice';
+import { getManagersListFromUser, getAllManagersActionAsync } from '../../redux/slices/userSlice';
+
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import Page from '../../components/Page';
 import { PATH_DASHBOARD } from '../../routes/paths';
-// import { getAllProjectsAsync } from '../../redux/slices/projSlice';
+
 import useSettings from '../../hooks/useSettings';
 import { MIconButton } from '../../components/@material-extend';
 
 /* eslint-disable */
 
 export default function RequestForm() {
-  // return <Typography variant="h3">Ajay</Typography>;
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const error = useSelector(getErrorFromUser);
-  const msg = useSelector(getMsgFromUser);
-  const [isChecked, setIsChecked] = useState(false);
-  const [isCheckeds, setIsCheckeds] = useState(false);
-  const [isCheck, setIsCheck] = useState(false);
-  const isLoading = useSelector(getIsLoadingFromUser);
-  const { calender: userList } = useSelector((state) => state.project);
-  const { calender } = useSelector((state) => state.project);
-  const { projects } = useSelector((state) => state.proj);
-  const projectLOV = useSelector(getProjectLOVFromTS);
+  const error = useSelector(selectWfhError);
+  console.log('Error In WFH :', error);
+  const msg = useSelector(selectWfhData);
+  const [loading, setLoading] = useState(false);
+  const [loadingReject, setLoadingReject] = useState(false);
+  const isLoading = useSelector(selectIsWfhLoading);
   const [reason, setReason] = useState('');
-  const [noofDays, setNoofDays] = useState('');
-  const [projManager, setProjManager] = useState('');
   const [pdoManager, setPdoManager] = useState('');
-  const [backlogs, setBacklogs] = useState('');
-  const modeofTravel = [{ value: 'Bus' }, { value: 'Train' }, { value: 'Air' }, { value: 'cab' }];
-  const { managers } = useSelector((state) => state.user);
+  const [backLogs, setBackLogs] = useState('');
+  const [maxEndDate, setMaxEndDate] = useState(null);
+  const [holidays, setHolidays] = useState([]);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
+  };
+
+  // const { calender } = useSelector((state) => state.project);
+
+  const managers = useSelector(getManagersListFromUser);
   console.log('managers', managers);
-  console.log('9099', calender);
+  // console.log('9099', calender);
   const navigate = useNavigate();
   const [text, setText] = useState('• ');
 
-  const modules = {
-    toolbar: [[{ list: 'bullet' }]]
-  };
+  const Manager = localStorage.getItem('manager');
+  console.log('Manager', Manager);
 
-  const handleChange = (value) => {
-    setText(value);
-  };
+  const token = localStorage.getItem('accessToken');
+  console.log('Token', token);
+
+  // const handleChange = (value) => {
+  //   setText(value);
+  // };
 
   const [numberOfDays, setNumberOfDays] = useState(0);
-
-  const [selectedCities, setSelectedCities] = useState(null);
-
-  const handleCheckboxChange = (event) => {
-    setIsChecked(event.target.checked);
-  };
-  const handleCheckbox = (event) => {
-    setIsCheck(event.target.checked);
-  };
-
-  const handleCheckboxChanges = (event) => {
-    setIsCheckeds(event.target.checkeds);
-  };
 
   const handleTextChange = (e) => {
     setText(e.target.value);
@@ -120,213 +102,392 @@ export default function RequestForm() {
     }
   };
 
-  const NewUserSchema = Yup.object().shape({
-    fromdate: Yup.string().required('Start Date is required'),
-    todate: Yup.string().required('End Date is required'),
-    reason: Yup.string().required(' Reason is required'),
-    numberOfDays: Yup.string().required('No of Days is required'),
-    backlog: Yup.string().required('Backlogs is required'),
-    projectmanager: Yup.string().required('Project Manager is required'),
-    pdomanager: Yup.string().required('PDO Manager To is required')
-  });
-
   const [startDate, setStartDate] = useState(null);
+
   const [endDate, setEndDate] = useState(null);
+
+  const calculateWeekdayDifference = (start, end) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    let days = 0;
+    let currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      const dayOfWeek = currentDate.getDay();
+      if (!holidays.includes(format(currentDate, 'EEEE'))) {
+        days++;
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return days;
+  };
 
   const handleStartDateChange = (date) => {
     setStartDate(date);
-    setEndDate(null);
-    setNumberOfDays(0);
+
+    // Calculate the maximum selectable end date based on the selected start date
+    const maxSelectableEndDate = addDays(date, 4);
+
+    // Adjust maxSelectableEndDate based on the day of the week (position)
+    const dayPosition = date.getDay(); // 0 is Sunday, 1 is Monday, ..., 6 is Saturday
+    let additionalDays = 0;
+
+    if (dayPosition === 2) {
+      additionalDays = 2; // Add an extra day if the day is Monday (position 1)
+    } else if (dayPosition === 3) {
+      additionalDays = 2; // Add two extra days if the day is Tuesday (position 2)
+    } else if (dayPosition === 4) {
+      additionalDays = 2; // Add three extra days if the day is Wednesday (position 3)
+    } else if (dayPosition === 5) {
+      additionalDays = 2; // Add four extra days if the day is Thursday (position 4)
+    } else if (dayPosition === 6) {
+      additionalDays = 2; // Add Two extra days if the day is Saturday (position 4)
+    } else if (dayPosition === 1) {
+      additionalDays = 2; // Add One extra days if the day is Monday (position 4)
+    } else if (dayPosition === 0) {
+      additionalDays = 2; // Add One extra days if the day is Monday (position 4)
+    }
+
+    if (endDate && !isWithinInterval(endDate, { start: date, end: maxSelectableEndDate })) {
+      setEndDate(null); // Reset end date if it's outside the allowed range
+    }
+
+    // Set the maximum selectable end date considering the additional days
+    const adjustedMaxSelectableEndDate = addDays(maxSelectableEndDate, additionalDays);
+    setMaxEndDate(adjustedMaxSelectableEndDate);
   };
 
   const handleEndDateChange = (date) => {
     setEndDate(date);
     if (startDate && date) {
-      const start = new Date(startDate);
-      const end = new Date(date);
-      const daysDifference = Math.floor((end - start) / (1000 * 60 * 60 * 24));
-      setNumberOfDays(daysDifference + 1); // Add 1 to include both the start and end dates
+      const daysDifference = calculateWeekdayDifference(startDate, date, holidays);
+      setNumberOfDays(daysDifference); // Update the number of days excluding weekends
+      // setEndDate('numberOfDays', daysDifference); // Update the form value
     } else {
       setNumberOfDays(0);
+      // setFieldValue('numberOfDays', 0); // Reset the form value
     }
   };
 
-  const handleStartDate = (value) => {
-    setStartDate(value);
-    setEndDate(value);
-  };
-
-  const handleEndDate = (value) => {
-    setEndDate(value);
-  };
-
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: {
-      project: '',
-      date_of_travel: '',
-      time: '',
-      time_zone: 'IST',
-      travel_mode: '',
-      location_from: '',
-      location_to: '',
-      acc_location: '',
-      hotel_name: '',
-      checkin_date_time: '',
-      checkout_date_time: ''
-    },
-    validationSchema: NewUserSchema,
-    onSubmit: async (values, { setSubmitting, setErrors, resetForm }) => {
-      try {
-        const payload = {
-          ...values,
-          project: values.project,
-          date_of_travel: values.date_of_travel,
-          time: values.time,
-          time_zone: values.time_zone,
-          travel_mode: values.travel_mode,
-          location_from: values.location_from,
-          location_to: values.location_to,
-          acc_location: values.acc_location,
-          hotel_name: values.hotel_name,
-          checkin_date_time: values.checkin_date_time,
-          checkout_date_time: values.checkout_date_time
-        };
-        await dispatch(createTravelDetailsAsync(payload));
-        resetForm();
-        // enqueueSnackbar('Created successfully', {
-        //   variant: 'success',
-        //   action: (key) => (
-        //     <MIconButton size="small" onClick={() => closeSnackbar(key)}>
-        //       <Icon icon={closeFill} />
-        //     </MIconButton>
-        //   )
-        // });
-        setSubmitting(false);
-      } catch (error) {
-        console.error(error);
-        setSubmitting(false);
-        // enqueueSnackbar('Creation failed', { variant: 'error' });
-        setErrors(error);
+  const handleSave = async () => {
+    let isFormValid = true;
+    setLoading(true);
+    if (!startDate || !endDate || !reason || !numberOfDays || !Manager || !pdoManager || !backLogs) {
+      isFormValid = false;
+      if (!startDate) {
+        setLoading(false);
+        enqueueSnackbar('StartDate is required', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
       }
-      navigate(PATH_DASHBOARD.travel.travelSummary);
+      if (!endDate) {
+        setLoading(false);
+        enqueueSnackbar('EndDate is required', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
+      if (!reason) {
+        setLoading(false);
+        enqueueSnackbar('Reason is required', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
+      if (!numberOfDays) {
+        setLoading(false);
+        enqueueSnackbar('Number of Days is required', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
+      if (!Manager) {
+        setLoading(false);
+        enqueueSnackbar('Manager is required', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
+      if (!pdoManager) {
+        setLoading(false);
+        enqueueSnackbar('Project Manager is required', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
+      if (!backLogs) {
+        setLoading(false);
+        enqueueSnackbar('BackLogs is required', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
     }
-  });
 
-  const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
-
-  const createRequest = async () => {
-    try {
-      // Validate form data using Yup
-      await NewUserSchema.validate({
+    if (isFormValid) {
+      const payload = {
         fromdate: startDate,
         todate: endDate,
         reason: reason,
-        numberOfDays: noofDays,
-        backlog: backlogs,
-        projectmanager: projManager,
-        pdomanager: pdoManager
-      });
-
-      // If validation succeeds, make the API request
-      const response = await axios.post(
-        'https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/createUpdateProject',
-        {
-          proj_Id: params.projId,
-          project_Type: String(selectedProjectType),
-          proj_Name: String(projName),
-          project_Manager: String(projManager),
-          calendarName: String(calendarName),
-          description: String(description),
-          start_Date: String(startDate),
-          end_Date: String(endDate),
-          actual_Date: String(actual),
-          empNames: empName,
-          review_Status: review_Status
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + token
+        numberOfDays: numberOfDays,
+        manager: Manager,
+        projectmanager: pdoManager,
+        backlog: backLogs,
+        status: 'saved' // Set status to 'saved' for save action
+      };
+      try {
+        const token = localStorage.getItem('accessToken');
+        const response = await axios.post(
+          'https://techstephub.focusrtech.com:3030/techstep/api/Timesheet/Service/wfhrequest',
+          payload,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + token
+            }
           }
-        }
-      );
-      navigate(PATH_DASHBOARD.project.projectCreate);
-      console.log('Ok', response.data);
-      enqueueSnackbar('Support Project Updated Successfully', {
-        autoHideDuration: 2000,
-        variant: 'success'
-      });
+        );
 
-      setSuccess(true);
-      console.log('response status', response.status);
-      // navigate(PATH_DASHBOARD.admin.userManagement);
-    } catch (error) {
-      if (error.name === 'ValidationError') {
-        // Yup validation error
-        console.log('Validation error:', error.message);
-        enqueueSnackbar(error.message, {
-          autoHideDuration: 2000,
-          variant: 'error'
-        });
-      } else {
-        // Other errors (network error, API response error, etc.)
-        console.log('Error:', error);
-        if (error.response) {
-          console.log('Error response status', error.response.status);
-          console.log('Error response data', error.response.data.message);
-          enqueueSnackbar(error.response.data.message, {
-            autoHideDuration: 2000,
-            variant: 'error'
-          });
+        if (response.status === 200) {
+          setLoading(false);
+
+          if (response.data.id === 0) {
+            enqueueSnackbar('Failed: Already You Request The Given Date', { variant: 'error' });
+            // Optionally handle other specific error cases if needed
+            navigate(PATH_DASHBOARD.travel.reqWFH);
+          } else {
+            enqueueSnackbar('Saved successfully', { variant: 'success' });
+            navigate(PATH_DASHBOARD.travel.reqWFH);
+          }
         } else {
-          console.log('Network error or request was canceled:', error.message);
-          // Handle other types of errors here
+          enqueueSnackbar('Save failed', { variant: 'error' });
+          navigate(PATH_DASHBOARD.travel.reqWFH);
         }
+      } catch (error) {
+        setLoading(false);
+        if (error.response && error.response.data && error.response.data.message) {
+          enqueueSnackbar(error.response.data.message, { variant: 'error' });
+        } else {
+          enqueueSnackbar('Save failed', { variant: 'error' });
+        }
+        navigate(PATH_DASHBOARD.travel.reqWFH);
+      }
+    }
+  };
+
+  const handleSubmit = async () => {
+    let isFormValid = true;
+    setLoadingReject(true);
+    if (!startDate || !endDate || !reason || !numberOfDays || !Manager || !pdoManager || !backLogs) {
+      isFormValid = false;
+      if (!startDate) {
+        setLoadingReject(false);
+        enqueueSnackbar('StartDate is required', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
+      if (!endDate) {
+        setLoadingReject(false);
+        enqueueSnackbar('EndDate is required', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
+      if (!reason) {
+        setLoadingReject(false);
+        enqueueSnackbar('Reason is required', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
+      if (!numberOfDays) {
+        setLoadingReject(false);
+        enqueueSnackbar('Number of Days is required', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
+      if (!Manager) {
+        setLoadingReject(false);
+        enqueueSnackbar('Manager is required', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
+      if (!pdoManager) {
+        setLoadingReject(false);
+        enqueueSnackbar('Project Manager is required', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
+      if (!backLogs) {
+        setLoadingReject(false);
+        enqueueSnackbar('BackLogs is required', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
+    }
+
+    if (isFormValid) {
+      const payload = {
+        fromdate: startDate,
+        todate: endDate,
+        reason: reason,
+        numberOfDays: numberOfDays,
+        manager: Manager,
+        projectmanager: pdoManager,
+        backlog: backLogs,
+        status: 'submitted' // Set status to 'submitted' for submission action
+      };
+
+      try {
+        const token = localStorage.getItem('accessToken');
+        const response = await axios.post(
+          'https://techstephub.focusrtech.com:3030/techstep/api/Timesheet/Service/wfhrequest',
+          payload,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + token
+            }
+          }
+        );
+
+        if (response.status === 200) {
+          setLoadingReject(false);
+
+          if (response.data.id === 0) {
+            enqueueSnackbar('Failed: Already You Request The Given Date', { variant: 'error' });
+            // Optionally handle other specific error cases if needed
+            navigate(PATH_DASHBOARD.travel.reqWFH);
+          } else {
+            enqueueSnackbar('Submitted successfully', { variant: 'success' });
+            navigate(PATH_DASHBOARD.travel.reqWFH);
+          }
+        } else {
+          enqueueSnackbar('Submit failed', { variant: 'error' });
+          navigate(PATH_DASHBOARD.travel.reqWFH);
+        }
+      } catch (error) {
+        setLoadingReject(false);
+        if (error.response && error.response.data && error.response.data.message) {
+          enqueueSnackbar(error.response.data.message, { variant: 'error' });
+        } else {
+          enqueueSnackbar('Submit failed', { variant: 'error' });
+        }
+        navigate(PATH_DASHBOARD.travel.reqWFH);
       }
     }
   };
 
   useEffect(() => {
-    dispatch(getAllProjectsAsync());
-    dispatch(getAllProjectsAsync());
     dispatch(getAllManagersActionAsync());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (error) {
-      enqueueSnackbar(error, {
-        variant: 'error',
-        action: (key) => (
-          <MIconButton size="small" onClick={() => closeSnackbar(key)}>
-            <Icon icon={closeFill} />
-          </MIconButton>
-        )
-      });
-      dispatch(setErrorNull());
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [error]);
-  React.useEffect(() => {
-    dispatch(getProjectLOVAsync());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (msg) {
-      enqueueSnackbar(msg, 'Created Successfully', { variant: 'success' });
-      dispatch(setMsgNull());
-
-      setFieldValue('proj_Name', '');
-      setFieldValue('calendarName', '');
-      setFieldValue('description', '');
-      setFieldValue('start_Date', '');
-      setFieldValue('end_Date', '');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [msg]);
-
   const title = 'WFH Request';
+
+  // const isWeekend = (date) => {
+  //   const day = date.getDay();
+  //   return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+  // };
+
+  useEffect(() => {
+    const fetchHolidays = async () => {
+      const token = localStorage.getItem('accessToken');
+      try {
+        const response = await axios.get(
+          'https://techstephub.focusrtech.com:3030/techstep/api/Timesheet/Service/holiday',
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + token
+            }
+          }
+        );
+        setHolidays(response.data); // ["Sunday", "Monday"]
+      } catch (error) {
+        console.error('Error fetching holidays:', error);
+      }
+    };
+
+    fetchHolidays();
+  }, []);
+
+  // const isWeekend = async (date) => {
+  //   // Fetch the list of holidays
+  //   const holidays = await fetchHolidays();
+
+  //   // Get the day name of the provided date (e.g., "Sunday", "Monday", etc.)
+  //   const dayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(date);
+
+  //   // Check if the day name is included in the list of holidays
+  //   return holidays.includes(dayName);
+  // };
+  const isWeekend = (date) => {
+    const dayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(date);
+    return holidays.includes(dayName);
+  };
 
   return (
     <Page title={title}>
@@ -340,174 +501,161 @@ export default function RequestForm() {
           ]}
         />
 
-        <FormikProvider value={formik}>
-          <Form noValiddate autoComplete="off" onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
-              <Grid item xs={30} md={1}>
-                <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
-                  {touched.avatarUrl && errors.avatarUrl}
-                </FormHelperText>
-              </Grid>
+        <Grid container spacing={3}>
+          <Grid item xs={30} md={1}></Grid>
 
-              <Grid item xs={12} md={10}>
-                <Card sx={{ p: 3, mt: -3 }}>
-                  <Stack spacing={3}>
-                    <Grid item xs={12} sm={12} md={12}>
-                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
-                        <FormControl fullWidth>
-                          <DatePicker
-                            required
-                            fullWidth
-                            label="From Date"
-                            value={startDate}
-                            inputFormat="dd/MM/yyyy"
-                            disablePast
-                            onChange={handleStartDateChange}
-                            // onChange={(newValue) => {
-                            //   if (newValue) {
-                            //     handleStartDate(newValue);
-                            //     const parseddate = format(newValue, 'yyyy-MM-dd');
-                            //     setFieldValue('date_of_travel', parseddate);
-                            //   } else {
-                            //     setFieldValue('date_of_travel', '');
-                            //   }
-                            // }}
-                            // onChangeRaw={(e) => e.preventDefault()}
-                            onKeyDown={(e) => e.preventDefault()}
-                            disabled={isLoading}
-                            renderInput={(params) => (
-                              <Field
-                                component={TextField}
-                                size="small"
-                                {...params}
-                                onKeyDown={(e) => e.preventDefault()}
-                              />
-                            )}
-                          />
-                        </FormControl>
-                        <FormControl fullWidth>
-                          <DatePicker
-                            required
-                            fullWidth
-                            label="To Date"
-                            inputFormat="dd/MM/yyyy"
-                            disablePast
-                            value={endDate}
-                            minDate={startDate ? addDays(startDate, 1) : null}
-                            maxDate={startDate ? addDays(startDate, 4) : null}
-                            onChange={handleEndDateChange}
-                            // onChange={(newValue) => {
-                            //   if (newValue) {
-                            //     handleStartDate(newValue);
-                            //     const parseddate = format(newValue, 'yyyy-MM-dd');
-                            //     setFieldValue('date_of_travel', parseddate);
-                            //   } else {
-                            //     setFieldValue('date_of_travel', '');
-                            //   }
-                            // }}
-                            // onChangeRaw={(e) => e.preventDefault()}
-                            onKeyDown={(e) => e.preventDefault()}
-                            disabled={isLoading}
-                            renderInput={(params) => (
-                              <Field
-                                component={TextField}
-                                size="small"
-                                {...params}
-                                onKeyDown={(e) => e.preventDefault()}
-                              />
-                            )}
-                          />
-                        </FormControl>
-                        <FormControl fullWidth>
-                          <TextField
-                            required
-                            type="number"
-                            size="small"
-                            label="No of Days"
-                            value={numberOfDays}
-                            InputProps={{
-                              readOnly: true
-                            }}
-                          />
-                        </FormControl>
-                      </Stack>
-                    </Grid>
-                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
+          <Grid item xs={12} md={10}>
+            <Card sx={{ p: 3, mt: -3 }}>
+              <Stack spacing={3}>
+                <Grid item xs={12} sm={12} md={12}>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
+                    <FormControl fullWidth>
                       <FormControl fullWidth>
-                        <TextField required label="Reason" />
-                      </FormControl>
-                    </Stack>
-                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
-                      <FormControl fullWidth>
-                        <TextField size="small" required label="Project Manager" />
-                      </FormControl>
-                      <FormControl fullWidth>
-                        <InputLabel id="project-type-label">PDO Manager</InputLabel>
-                        <Select
-                          size="small"
-                          labelId="Project-type-label"
-                          id="Project-select"
-                          label="PDO Manager"
-                          name="PDO Manager"
-                          {...getFieldProps('project')}
-                          error={Boolean(touched.project && errors.project)}
-                          helperText={touched.project && errors.project}
-                          MenuProps={MenuProps}
-                        >
-                          {managers.map((_x, i) => (
-                            <MenuItem key={i} value={_x.designation}>
-                              {_x.designation}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Stack>
-
-                    <Grid item xs={12} sm={12} md={12}>
-                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
-                        {/* <TextField
+                        <DatePicker
+                          label="From Date"
+                          value={startDate}
+                          inputFormat="yyyy-MM-dd"
+                          disablePast
                           fullWidth
-                          label="Backlogs/Planned Activities"
-                          // {...getFieldProps('location_to')}
-                          // error={Boolean(touched.location_to && errors.location_to)}
-                          // helperText={touched.location_to && errors.location_to}
-                        /> */}
-                        {/* <div>
-                          <ReactQuill
-                            style={{ width: 850 }}
-                            value={text}
-                            onChange={handleChange}
-                            modules={modules}
-                            placeholder="Planned Activites / Backlogs"
-                          />
-                        </div> */}
-                        <TextField
-                          fullWidth
-                          label="Backlogs/Planned Activities"
-                          value={text}
-                          onChange={handleTextChange}
-                          onKeyPress={handleKeyPress}
-                          multiline
-                          variant="outlined"
+                          shouldDisableDate={isWeekend} // Disable weekends
+                          onChange={(newValue) => {
+                            if (newValue instanceof Date && !isNaN(newValue)) {
+                              const parseddate = format(newValue, 'yyyy-MM-dd');
+                              setStartDate(parseddate);
+                              handleStartDateChange(newValue); // Call the function to update the number of days
+                              console.log('Date', newValue);
+                            } else {
+                              // Handle cases where newValue is not a valid date
+                              console.error('Invalid date:', newValue);
+                              // You might handle this situation by setting an appropriate default value or showing an error message.
+                            }
+                          }}
+                          onKeyDown={(e) => e.preventDefault()}
+                          disabled={isLoading}
+                          renderInput={(params) => <TextField size="small" {...params} label="From Date" />}
                         />
-                      </Stack>
-                    </Grid>
-                    <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                      <LoadingButton
-                        style={{ marginLeft: '1%' }}
-                        type="submit"
-                        variant="contained"
-                        loading={isSubmitting || isLoading}
-                      >
-                        SUBMIT
-                      </LoadingButton>
-                    </Box>
+                      </FormControl>
+                    </FormControl>
+                    <FormControl fullWidth>
+                      <FormControl fullWidth>
+                        <DatePicker
+                          label="To Date"
+                          value={endDate}
+                          inputFormat="yyyy-MM-dd"
+                          // minDate={startDate ? addDays(startDate, 1) : null}
+                          // maxDate={startDate ? addDays(startDate, 4) : null}
+                          minDate={startDate}
+                          maxDate={maxEndDate}
+                          disablePast
+                          shouldDisableDate={isWeekend} // Disable weekends
+                          // onChange={(newValue) => {
+                          //   if (newValue) {
+                          //     const parseddate = format(newValue, 'yyyy-MM-dd');
+                          //     setEndDate(parseddate);
+                          //     handleEndDateChange(newValue); // Call the function to update the number of days
+                          //   }
+                          // }}
+                          onChange={(newValue) => {
+                            if (newValue instanceof Date && !isNaN(newValue)) {
+                              const parseddate = format(newValue, 'yyyy-MM-dd');
+                              setEndDate(parseddate);
+                              handleEndDateChange(newValue); // Call the function to update the number of days
+                            } else {
+                              // Handle cases where newValue is not a valid date
+                              console.error('Invalid date:', newValue);
+                              // You might handle this situation by setting an appropriate default value or showing an error message.
+                            }
+                          }}
+                          onKeyDown={(e) => e.preventDefault()}
+                          disabled={isLoading}
+                          renderInput={(params) => <TextField size="small" {...params} label="To Date" />}
+                        />
+                      </FormControl>
+                    </FormControl>
+                    <FormControl fullWidth>
+                      <TextField
+                        required
+                        type="number"
+                        size="small"
+                        label="No of Days"
+                        value={numberOfDays}
+                        InputProps={{
+                          readOnly: true
+                        }}
+                      />
+                    </FormControl>
                   </Stack>
-                </Card>
-              </Grid>
-            </Grid>
-          </Form>
-        </FormikProvider>
+                </Grid>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
+                  <FormControl fullWidth>
+                    <TextField
+                      fullWidth
+                      label="Reason"
+                      multiline
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
+                    />
+                  </FormControl>
+                </Stack>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
+                  <FormControl fullWidth>
+                    <TextField fullWidth label="Reporting Manager" multiline disabled size="small" value={Manager} />
+                  </FormControl>
+                  <FormControl fullWidth>
+                    <InputLabel id="project-type-label">PDO Manager</InputLabel>
+                    <Select
+                      size="small"
+                      labelId="Project-type-label"
+                      id="Project-select"
+                      label="PDO Manager"
+                      name="PDO Manager"
+                      value={pdoManager}
+                      onChange={(e) => setPdoManager(e.target.value)}
+                      // MenuProps={MenuProps}
+                    >
+                      {managers.map((_x, i) => (
+                        <MenuItem key={i} value={_x.name}>
+                          {_x.name} ({_x.designation})
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Stack>
+
+                <Grid item xs={12} sm={12} md={12}>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
+                    <TextField
+                      fullWidth
+                      label="BackLog"
+                      multiline
+                      value={backLogs}
+                      onChange={(e) => setBackLogs(e.target.value)}
+                    />
+                  </Stack>
+                </Grid>
+
+                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                  <LoadingButton
+                    style={{ marginLeft: '1%' }}
+                    variant="contained"
+                    onClick={handleSave}
+                    loading={loading}
+                  >
+                    SAVE
+                  </LoadingButton>
+                  <LoadingButton
+                    style={{ marginLeft: '1%' }}
+                    variant="contained"
+                    onClick={handleSubmit}
+                    loading={loadingReject}
+                  >
+                    SUBMIT
+                  </LoadingButton>
+                </Box>
+              </Stack>
+            </Card>
+          </Grid>
+        </Grid>
       </Container>
     </Page>
   );

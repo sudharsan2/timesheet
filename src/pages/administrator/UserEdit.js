@@ -321,7 +321,7 @@ export default function UserEdit({ employeeId }) {
         <HeaderBreadcrumbs
           heading={title}
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
+            { name: 'Dashboard', href: PATH_DASHBOARD.general.root },
             { name: 'User Management', href: PATH_DASHBOARD.admin.userManagement },
             { name: 'User Edit' }
           ]}
@@ -603,13 +603,13 @@ export default function UserEdit({ employeeId }) {
                         label={checked ? 'Active' : 'Not Active'}
                         labelPlacement="end"
                       />
-                      {/* <FormControlLabel
+                      <FormControlLabel
                         fullWidth
                         {...getFieldProps('is_bulk_upload')}
                         control={<Switch checked={isBulkChecked} onChange={handleBulkUpload} />}
                         label="Bulk Upload"
                       />
-                      <FormControl fullWidth>
+                      {/* <FormControl fullWidth>
                         <DatePicker
                           required
                           label="DOB"

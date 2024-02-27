@@ -1,273 +1,186 @@
+/* eslint-disable no-restricted-globals */
+/* eslint-disable no-unneeded-ternary */
+/* eslint-disable arrow-body-style */
+/* eslint-disable spaced-comment */
+/* eslint-disable prettier/prettier */
+/* eslint-disable prefer-template */
+
+/////////////////////////////////////////////////////////////
+
+import React, { useState } from 'react';
+import axios from 'axios';
 import {
-  FormControl,
-  FormHelperText,
-  Grid,
-  Typography,
   Container,
-  Card,
-  Stack,
+  Typography,
   TextField,
-  Box,
   TableContainer,
   Table,
   TableHead,
   TableRow,
   TableCell,
   TableBody,
-  Autocomplete,
-  InputLabel,
-  FormControlLabel,
-  Checkbox,
-  Select,
-  MenuItem
+  Grid,
+  Paper,
+  Stack,
+  Alert,
+  AlertTitle,
+  IconButton
 } from '@mui/material';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import SendIcon from '@mui/icons-material/Send';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import { MultiSelect } from 'primereact/multiselect';
-import * as Yup from 'yup';
-import { Icon } from '@iconify/react';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import closeFill from '@iconify/icons-eva/close-fill';
-import { useNavigate } from 'react-router';
-import { useSnackbar } from 'notistack';
+import { Icon } from '@iconify/react';
 import { DatePicker, LoadingButton } from '@mui/lab';
-import { format, addDays } from 'date-fns';
-import React, { useState, useEffect } from 'react';
-import { Form, FormikProvider, useFormik, Field } from 'formik';
-import { createDispatchHook, useDispatch, useSelector } from 'react-redux';
-import {
-  createTravelDetailsAsync,
-  getMsgFromUser,
-  getErrorFromUser,
-  setErrorNull,
-  setMsgNull,
-  getIsLoadingFromUser
-} from '../../redux/slices/projectSlice';
-import { getAllManagersActionAsync } from '../../redux/slices/userSlice';
-import { getProjectLOVFromTS, getProjectLOVAsync } from '../../redux/slices/timesheetSlice';
-import { getAllProjectsAsync } from '../../redux/slices/projSlice';
-import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
-import Page from '../../components/Page';
-import { PATH_DASHBOARD } from '../../routes/paths';
-// import { getAllProjectsAsync } from '../../redux/slices/projSlice';
-import useSettings from '../../hooks/useSettings';
+import { useSnackbar } from 'notistack';
+import { useNavigate, useParams } from 'react-router';
 import { MIconButton } from '../../components/@material-extend';
 
-/* eslint-disable */
+import { PATH_DASHBOARD } from '../../routes/paths';
 
-export default function EodStatus() {
-  // return <Typography variant="h3">Ajay</Typography>;
-  const { themeStretch } = useSettings();
-  const dispatch = useDispatch();
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const error = useSelector(getErrorFromUser);
-  const msg = useSelector(getMsgFromUser);
-  const [isChecked, setIsChecked] = useState(false);
-  const [isCheckeds, setIsCheckeds] = useState(false);
-  const [isCheck, setIsCheck] = useState(false);
-  const isLoading = useSelector(getIsLoadingFromUser);
-  const { calender: userList } = useSelector((state) => state.project);
-  const { calender } = useSelector((state) => state.project);
-  const { projects } = useSelector((state) => state.proj);
-  const projectLOV = useSelector(getProjectLOVFromTS);
-  const modeofTravel = [{ value: 'Bus' }, { value: 'Train' }, { value: 'Air' }, { value: 'cab' }];
-  const { managers } = useSelector((state) => state.user);
-  console.log('managers', managers);
-  console.log('9099', calender);
-  const navigate = useNavigate();
-  const [text, setText] = useState('• ');
+function EodStatus() {
+  const initialTableData = [
+    { time: '1st hour', taskPlan: '' },
+    { time: '2nd hour', taskPlan: '' },
+    { time: '3rd hour', taskPlan: '' },
+    { time: '4th hour', taskPlan: '' },
+    { time: '5th hour', taskPlan: '' },
+    { time: '6th hour', taskPlan: '' },
+    { time: '7th hour', taskPlan: '' },
+    { time: '8th hour', taskPlan: '' }
+  ];
 
-  const modules = {
-    toolbar: [[{ list: 'bullet' }]]
-  };
+  const Manager = localStorage.getItem('manager');
+  console.log('Manager', Manager);
 
-  const handleChange = (value) => {
-    setText(value);
-  };
-
-  const [numberOfDays, setNumberOfDays] = useState(0);
-
-  const [selectedCities, setSelectedCities] = useState(null);
-
-  const handleCheckboxChange = (event) => {
-    setIsChecked(event.target.checked);
-  };
-  const handleCheckbox = (event) => {
-    setIsCheck(event.target.checked);
-  };
-
-  const handleCheckboxChanges = (event) => {
-    setIsCheckeds(event.target.checkeds);
-  };
-
-  const handleTextChange = (e) => {
-    setText(e.target.value);
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      setText(text + '\n • ');
-    }
-  };
-
-  const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 160
-      }
-    }
-  };
-
-  const NewUserSchema = Yup.object().shape({
-    project: Yup.string().required('Project name is required'),
-    date_of_travel: Yup.string().required('Date of Travel is required'),
-    time: Yup.string().required(' Time is required'),
-    time_zone: Yup.string().required('Time Zone is required'),
-    travel_mode: Yup.string().required('Travel mode is required'),
-    location_from: Yup.string().required('Location From is required'),
-    location_to: Yup.string().required('Location To is required')
+  const [formData, setFormData] = useState({
+    reason: '',
+    plannedtask: '',
+    backlog: '',
+    remarks: '',
+    manager: Manager,
+    pdomanager: '',
+    status: '',
+    taskdate: new Date()
   });
-
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-
-  const handleStartDateChange = (date) => {
-    setStartDate(date);
-    setEndDate(null);
-    setNumberOfDays(0);
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tableData, setTableData] = useState(initialTableData);
+  const [plannedTaskError, setPlannedTaskError] = useState(false);
+  const [taskDetails, setTaskDetails] = useState([]);
+  const [apiResponse, setApiResponse] = useState([]);
+  console.log('Response', apiResponse);
+  const [taskPlanErrors, setTaskPlanErrors] = useState(new Array(initialTableData.length).fill(false));
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const [managerComments, setManagerComments] = useState('');
+  const [status, setStatus] = useState('');
+  const [reqStatus, setReqStatus] = useState('');
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
-  const handleEndDateChange = (date) => {
-    setEndDate(date);
-    if (startDate && date) {
-      const start = new Date(startDate);
-      const end = new Date(date);
-      const daysDifference = Math.floor((end - start) / (1000 * 60 * 60 * 24));
-      setNumberOfDays(daysDifference + 1); // Add 1 to include both the start and end dates
+  const handleFormChange = async (field, value) => {
+    setTaskDetails([]);
+    if (field === 'taskdate') {
+      const selectedDate = new Date(value);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        taskdate: selectedDate
+      }));
+      setTableData(initialTableData);
+      setTaskPlanErrors(new Array(initialTableData.length).fill(false));
+      setPlannedTaskError(false);
+
+      try {
+        const formattedDate = formatDate(value);
+        const token = localStorage.getItem('accessToken');
+
+        const response = await axios.post(
+          'https://techstephub.focusrtech.com:3030/techstep/api/Timesheet/Service/initiateTask',
+          {
+            taskdate: formattedDate
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + token
+            }
+          }
+        );
+
+        if (response.data) {
+          // If response is received, update form fields with fetched data
+          console.log('Response', response.data);
+
+          setStatus(response.data.status);
+          setReqStatus(response.data.wfhstatus);
+          setManagerComments(response.data.comments);
+          setTaskDetails(
+            response.data.taskDetailsList.map((x, i) => {
+              return x.task;
+            })
+          );
+          setApiResponse(response.data);
+
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            taskdate: response.data.taskdate || '',
+            reason: response.data.reason || '',
+            plannedtask: response.data.plannedtask || '',
+            manager: response.data.manager || '',
+            backlog: response.data.backlog || '',
+            remarks: response.data.remarks || 'Default Remarks',
+            pdomanager: response.data.pdomanager || ''
+          }));
+        } else {
+          // If no response received, reset form fields to empty values
+          setStatus('');
+          setReqStatus('');
+          setApiResponse([]);
+          setTaskDetails([]);
+          setFormData({
+            reason: '',
+            plannedtask: '',
+            backlog: '',
+            remarks: '',
+            manager: Manager,
+            pdomanager: '',
+            status: '',
+            taskdate: selectedDate
+          });
+          setTableData(initialTableData);
+          setTaskPlanErrors(new Array(initialTableData.length).fill(false));
+          setPlannedTaskError(false);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Handle error if the API call fails
+      }
     } else {
-      setNumberOfDays(0);
+      // ... your existing code for handling other field changes
     }
   };
 
-  const handleStartDate = (value) => {
-    setStartDate(value);
-    setEndDate(value);
-  };
-
-  const handleEndDate = (value) => {
-    setEndDate(value);
-  };
-
-  const [tableData, setTableData] = useState([
-    {
-      time: '1st hours',
-      taskPlan: ''
-    },
-    {
-      time: '2nd hours',
-      taskPlan: ''
-    },
-    {
-      time: '3rd hours',
-      taskPlan: ''
-    },
-    {
-      time: '4th hours',
-      taskPlan: ''
-    },
-    {
-      time: '5th hours',
-      taskPlan: ''
-    },
-    {
-      time: '6th hours',
-      taskPlan: ''
-    },
-    {
-      time: '7th hours',
-      taskPlan: ''
-    },
-    {
-      time: '8th hours',
-      taskPlan: ''
-    }
-  ]);
+  console.log('reqstatyus', status);
 
   const handleInputChange = (index, header, value) => {
     const updatedData = [...tableData];
     updatedData[index][header] = value;
     setTableData(updatedData);
+
+    const newErrors = updatedData.map((row) => row.taskPlan.trim() === '');
+    setTaskPlanErrors(newErrors);
   };
 
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: {
-      project: '',
-      date_of_travel: '',
-      time: '',
-      time_zone: 'IST',
-      travel_mode: '',
-      location_from: '',
-      location_to: '',
-      acc_location: '',
-      hotel_name: '',
-      checkin_date_time: '',
-      checkout_date_time: ''
-    },
-    validationSchema: NewUserSchema,
-    onSubmit: async (values, { setSubmitting, setErrors, resetForm }) => {
-      try {
-        const payload = {
-          ...values,
-          project: values.project,
-          date_of_travel: values.date_of_travel,
-          time: values.time,
-          time_zone: values.time_zone,
-          travel_mode: values.travel_mode,
-          location_from: values.location_from,
-          location_to: values.location_to,
-          acc_location: values.acc_location,
-          hotel_name: values.hotel_name,
-          checkin_date_time: values.checkin_date_time,
-          checkout_date_time: values.checkout_date_time
-        };
-        await dispatch(createTravelDetailsAsync(payload));
-        resetForm();
-        // enqueueSnackbar('Created successfully', {
-        //   variant: 'success',
-        //   action: (key) => (
-        //     <MIconButton size="small" onClick={() => closeSnackbar(key)}>
-        //       <Icon icon={closeFill} />
-        //     </MIconButton>
-        //   )
-        // });
-        setSubmitting(false);
-      } catch (error) {
-        console.error(error);
-        setSubmitting(false);
-        // enqueueSnackbar('Creation failed', { variant: 'error' });
-        setErrors(error);
-      }
-      navigate(PATH_DASHBOARD.travel.travelSummary);
-    }
-  });
+  const handleSubmitButtonClick = async () => {
+    const hasEmptyTaskPlans = taskPlanErrors.some((error) => error);
+    const allTaskPlansFilled = tableData.every((row) => row.taskPlan.trim() !== '');
 
-  const { errors, values, touched, handleSubmit, isSubmitting, setFieldValue, getFieldProps } = formik;
-
-  useEffect(() => {
-    dispatch(getAllProjectsAsync());
-    dispatch(getAllProjectsAsync());
-    dispatch(getAllManagersActionAsync());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (error) {
-      enqueueSnackbar(error, {
+    if (hasEmptyTaskPlans || !allTaskPlansFilled) {
+      // alert('Please fill in all fields before submitting.');
+      enqueueSnackbar('Please fill in all fields before submitting.', {
         variant: 'error',
         action: (key) => (
           <MIconButton size="small" onClick={() => closeSnackbar(key)}>
@@ -275,200 +188,234 @@ export default function EodStatus() {
           </MIconButton>
         )
       });
-      dispatch(setErrorNull());
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [error]);
-  React.useEffect(() => {
-    dispatch(getProjectLOVAsync());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  useEffect(() => {
-    if (msg) {
-      enqueueSnackbar(msg, 'Created Successfully', { variant: 'success' });
-      dispatch(setMsgNull());
+    setIsSubmitting(true); // Set submitting state to true
+    setIsLoading(true); // Show loading indicator
 
-      setFieldValue('proj_Name', '');
-      setFieldValue('calendarName', '');
-      setFieldValue('description', '');
-      setFieldValue('start_Date', '');
-      setFieldValue('end_Date', '');
+    const token = localStorage.getItem('accessToken');
+    const dataToSend = {
+      ...formData,
+      // taskdate: formatDate(formData.taskdate),
+      status: 'submitted', // Update the status to 'submitted'
+      taskDetailsList: tableData.map((row) => ({ task: row.taskPlan }))
+    };
+
+    try {
+      const response = await axios.post(
+        'https://techstephub.focusrtech.com:3030/techstep/api/Timesheet/Service/wfhdailyrequest',
+        dataToSend,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        // alert('Data submitted successfully');
+        enqueueSnackbar('Task Submitted Successfully', {
+          variant: 'success',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+        navigate(PATH_DASHBOARD.travel.reqWFH);
+      } else {
+        // alert('Data submission failed');
+        enqueueSnackbar('Task Submitted Failed', {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      // alert('An error occurred while submitting data');
+      if (error) {
+        enqueueSnackbar(error, {
+          variant: 'error',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+      }
+    } finally {
+      setIsSubmitting(false); // Reset submitting state
+      setIsLoading(false); // Hide loading indicator
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [msg]);
+  };
 
-  const title = 'EOD Entry';
+  const handleBack = () => {
+    // Logic to handle the back button click, for example, navigate to a previous page or route
+    navigate(PATH_DASHBOARD.travel.reqWFH);
+  };
 
   return (
-    <Page title={title}>
-      <Container maxWidth={themeStretch ? false : 'lg'}>
-        <Typography variant="h4" component="h1" paragraph>
-          Task Entry
-        </Typography>
-        <FormikProvider value={formik}>
-          <Form noValiddate autoComplete="off" onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
-              <Grid item xs={30} md={1}>
-                <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
-                  {touched.avatarUrl && errors.avatarUrl}
-                </FormHelperText>
-              </Grid>
+    <Container maxWidth="lg">
+      <Typography variant="h4" component="h1" paragraph>
+        Plan For Work From Home
+      </Typography>
+      <Stack spacing={2}>
+        {status === 'Reviewed' && (
+          <Alert severity="success">
+            <AlertTitle>Reviewed</AlertTitle>Your task for the day has been reviewed by your manager
+          </Alert>
+        )}
+        {status === 'DRAFT' && (
+          <Alert severity="info">
+            <AlertTitle>Submitted</AlertTitle>You have submitted your Task for the day. Awaiting your manager response
+            to your tasks
+          </Alert>
+        )}
+        {reqStatus === 'rejected' && (
+          <Alert severity="error">
+            <AlertTitle>Rejected</AlertTitle>Your Request for the day has not been Approved by your manager
+          </Alert>
+        )}
+        {reqStatus === 'approved' && (
+          <Alert severity="success">
+            <AlertTitle>Approved</AlertTitle>Your Request for the day has been Approved by your manager
+          </Alert>
+        )}
+        {reqStatus === 'submitted' && (
+          <Alert severity="warning">
+            <AlertTitle>Submitted</AlertTitle>Your Request for the day has been Submitted Succesfully
+          </Alert>
+        )}
+        {managerComments && (
+          <Alert severity="info">
+            <AlertTitle>Manager Comments</AlertTitle>
+            {managerComments}
+          </Alert>
+        )}
+      </Stack>
+      <Paper elevation={3} style={{ padding: '20px' }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item>
+            <DatePicker
+              label="Task Date"
+              value={formData.taskdate}
+              onChange={(date) => {
+                const selectedDate = new Date(date); // Ensure 'date' is parsed into a Date object
+                setFormData((prevFormData) => ({
+                  ...prevFormData,
+                  taskdate: selectedDate
+                }));
+                handleFormChange('taskdate', selectedDate);
+              }}
+              renderInput={(params) => <TextField size="small" {...params} />}
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              label="Reason"
+              size="small"
+              disabled
+              value={formData.reason}
+              onChange={(e) => handleFormChange('reason', e.target.value)}
+            />
+          </Grid>
+          <Grid item>
+            <TextField label="Reporting Manager" disabled size="small" value={formData.manager} />
+          </Grid>
 
-              <Grid item xs={12} md={10}>
-                <Card sx={{ p: 1, mt: -2 }}>
-                  <Stack spacing={2}>
-                    {status === 'Reviewed' && (
-                      <Alert severity="info">
-                        <AlertTitle>Reviewed</AlertTitle>Remarks: Your timesheet for the day has been approved by your
-                        manager
-                      </Alert>
-                    )}
-                  </Stack>
-                  <Stack spacing={3}>
-                    <Grid item xs={12} sm={12} md={12}>
-                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
-                        <FormControl fullWidth>
-                          <DatePicker
-                            required
-                            label="From Date"
-                            value={startDate}
-                            inputFormat="dd/MM/yyyy"
-                            disablePast
-                            onChange={handleStartDateChange}
-                            // onChange={(newValue) => {
-                            //   if (newValue) {
-                            //     handleStartDate(newValue);
-                            //     const parseddate = format(newValue, 'yyyy-MM-dd');
-                            //     setFieldValue('date_of_travel', parseddate);
-                            //   } else {
-                            //     setFieldValue('date_of_travel', '');
-                            //   }
-                            // }}
-                            // onChangeRaw={(e) => e.preventDefault()}
-                            onKeyDown={(e) => e.preventDefault()}
-                            disabled={isLoading}
-                            renderInput={(params) => (
-                              <Field
-                                component={TextField}
-                                size="small"
-                                {...params}
-                                onKeyDown={(e) => e.preventDefault()}
-                              />
-                            )}
-                          />
-                        </FormControl>
-                        <FormControl fullWidth>
-                          <DatePicker
-                            required
-                            label="End Date"
-                            inputFormat="dd/MM/yyyy"
-                            disablePast
-                            value={endDate}
-                            minDate={startDate ? addDays(startDate, 1) : null}
-                            maxDate={startDate ? addDays(startDate, 4) : null}
-                            onChange={handleEndDateChange}
-                            // onChange={(newValue) => {
-                            //   if (newValue) {
-                            //     handleStartDate(newValue);
-                            //     const parseddate = format(newValue, 'yyyy-MM-dd');
-                            //     setFieldValue('date_of_travel', parseddate);
-                            //   } else {
-                            //     setFieldValue('date_of_travel', '');
-                            //   }
-                            // }}
-                            // onChangeRaw={(e) => e.preventDefault()}
-                            onKeyDown={(e) => e.preventDefault()}
-                            disabled={isLoading}
-                            renderInput={(params) => (
-                              <Field
-                                component={TextField}
-                                size="small"
-                                {...params}
-                                onKeyDown={(e) => e.preventDefault()}
-                              />
-                            )}
-                          />
-                        </FormControl>
-                        <FormControl fullWidth>
-                          <TextField multiline rows={2} required label="Manager Commends" />
-                        </FormControl>
-                      </Stack>
-                    </Grid>
-
-                    <Stack
-                      direction={{ xs: 'column', sm: 'column', md: 'row' }}
-                      // spacing={{ xs: 1, sm: 1, md: 4 }}
-                      // justifyContent="space-between"
-                    >
-                      <FormControl fullWidth sx={{ mt: -5, ml: 5 }}>
-                        <Typography>Day 1</Typography>
-                      </FormControl>
-                      <FormControl fullWidth sx={{ mt: -5, ml: -10 }}>
-                        <Typography>30/10/2023</Typography>
-                      </FormControl>
-                    </Stack>
-                    <div style={{ marginTop: -10 }}>
-                      <TableContainer>
-                        <Table size="small">
-                          <TableHead>
-                            <TableRow>
-                              <TableCell sx={{ p: 0 }}>Time</TableCell>
-                              <TableCell sx={{ p: 0 }}>Task Plan</TableCell>
-                              <TableCell sx={{ p: 0 }}>
-                                <LoadingButton
-                                  sx={{ ml: -15.8 }}
-                                  size="small"
-                                  type="submit"
-                                  startIcon={<NavigateNextIcon />}
-                                  loading={isSubmitting || isLoading}
-                                >
-                                  Next
-                                </LoadingButton>
-                                <LoadingButton
-                                  sx={{ ml: 1 }}
-                                  size="small"
-                                  type="submit"
-                                  loading={isSubmitting || isLoading}
-                                >
-                                  Submit
-                                </LoadingButton>
-                              </TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {tableData.map((rowData, index) => (
-                              <TableRow key={index}>
-                                <TableCell sx={{ p: 0 }}>
-                                  <TextField
-                                    disabled
-                                    size="small"
-                                    sx={{ width: 100 }}
-                                    value={rowData.time}
-                                    onChange={(e) => handleInputChange(index, 'time', e.target.value)}
-                                  />
-                                </TableCell>
-                                <TableCell sx={{ p: 0 }}>
-                                  <TextField
-                                    sx={{ width: 700 }}
-                                    size="small"
-                                    value={rowData.taskPlan}
-                                    onChange={(e) => handleInputChange(index, 'taskPlan', e.target.value)}
-                                  />
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </div>
-                  </Stack>
-                </Card>
-              </Grid>
-            </Grid>
-          </Form>
-        </FormikProvider>
-      </Container>
-    </Page>
+          <Grid item>
+            {/* <TextField label="Reporting Manager" disabled size="small" value={formData.manager} /> */}
+            <TextField
+              label="PDO Manager"
+              size="small"
+              disabled
+              value={formData.pdomanager}
+              onChange={(e) => handleFormChange('pdoManager', e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField label="Backlogs" disabled value={formData.backlog} multiline size="small" fullWidth />
+          </Grid>
+          <Grid item xs={5.5}>
+            <TextField label="Remarks" disabled value={formData.remarks} multiline size="small" fullWidth />
+          </Grid>
+        </Grid>
+      </Paper>
+      <TableContainer sx={{ mt: 2 }}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Time</TableCell>
+              <TableCell>Task Plan</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {taskDetails.length === 0 ? (
+              <>
+                {tableData.map((rowData, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{rowData.time}</TableCell>
+                    <TableCell>
+                      <TextField
+                        fullWidth
+                        value={rowData.taskPlan}
+                        onChange={(e) => handleInputChange(index, 'taskPlan', e.target.value)}
+                        error={taskPlanErrors[index]}
+                        helperText={taskPlanErrors[index] ? 'Task Plan is required' : ''}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </>
+            ) : (
+              <>
+                {tableData.map((rowData, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{rowData.time}</TableCell>
+                    <TableCell>
+                      <TextField
+                        fullWidth
+                        disabled
+                        value={taskDetails[index]}
+                        onChange={(e) => handleInputChange(index, 'taskPlan', e.target.value)}
+                        error={taskPlanErrors[index]}
+                        helperText={taskPlanErrors[index] ? 'Task Plan is required' : ''}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <LoadingButton
+        type="submit"
+        variant="contained"
+        loading={isSubmitting || isLoading}
+        onClick={handleSubmitButtonClick}
+        // disabled={
+        //   status === 'DRAFT' ||
+        //   reqStatus === 'rejected' ||
+        //   reqStatus === 'submitted' ||
+        //   status === 'Reviewed' ||
+        //   reqStatus === 'saved'
+        // }
+        disabled={reqStatus !== 'approved' || status !== 'ONPROCESS'}
+      >
+        {isSubmitting || isLoading ? 'Submitting...' : 'Submit'}
+      </LoadingButton>
+      <IconButton onClick={handleBack} aria-label="back">
+        <ArrowBackIcon sx={{ color: 'blue' }} />
+      </IconButton>
+    </Container>
   );
 }
+
+export default EodStatus;

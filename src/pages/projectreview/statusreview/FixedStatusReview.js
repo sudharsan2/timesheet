@@ -28,10 +28,14 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
+  IconButton
 } from '@mui/material';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import { DatePicker } from '@mui/lab';
 import axios from 'axios';
+import { format, parseISO } from 'date-fns';
 import { useParams } from 'react-router';
 import { useSnackbar } from 'notistack';
 import React, { useState, useEffect } from 'react';
@@ -66,6 +70,7 @@ export default function FixedStatusReview() {
   const [actions, setActions] = useState('');
   const [open, setOpen] = useState(false); // State to control drawer open/close
   const [data, setData] = useState([]);
+  const [actionId, setActionId] = useState('');
 
   const weekNumber = params.weekNumber;
   const year = params.year;
@@ -81,9 +86,13 @@ export default function FixedStatusReview() {
     }
   };
 
+  const currentDate = new Date();
+
+  console.log('date cy', currentDate);
+
   const [tableData, setTableData] = useState([
     {
-      milestone_Number: 'Milestone 1',
+      milestone_Number: '1',
       milestone_Description: '',
       status: '',
       target_Date: '',
@@ -130,16 +139,13 @@ export default function FixedStatusReview() {
       return '';
     }
 
-    const dateParts = apiDateString.split('T')[0].split('-');
-    if (dateParts.length !== 3) {
-      return ''; // Invalid date format
-    }
+    const dateObject = new Date(apiDateString);
+    const day = dateObject.getDate();
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = monthNames[dateObject.getMonth()];
+    const year = dateObject.getFullYear();
 
-    const year = dateParts[0];
-    const month = dateParts[1];
-    const day = dateParts[2];
-
-    return `${year}-${month}-${day}`;
+    return `${day}-${month}-${year}`;
   }
 
   function getStandardWeekNumber(date) {
@@ -156,6 +162,8 @@ export default function FixedStatusReview() {
   const standardWeekNumber = getStandardWeekNumber(today);
   console.log(`Week number (Standard): ${standardWeekNumber}`);
 
+  const [showMessage, setShowMessage] = useState(false);
+
   const closeDialogUpdate = () => {
     window.history.back();
   };
@@ -163,7 +171,7 @@ export default function FixedStatusReview() {
   const fetchProjectdata = () => {
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getFixedWeekNOStatus/${weekNumber}/${year}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getFixedWeekNOStatus/${weekNumber}/${year}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -208,6 +216,10 @@ export default function FixedStatusReview() {
             }));
             console.log('table', tableDataFromAPIs);
             setTableData(tableDataFromAPIs);
+            const isLastProject = currentProjectIndex === res.data.length - 1;
+            if (isLastProject) {
+              setShowMessage(true);
+            }
           }
         }
       })
@@ -227,14 +239,21 @@ export default function FixedStatusReview() {
       setSupportManagement(supportProject[index].supportManagement);
       setResource(supportProject[index].projectResource);
       setResourceUpdate(supportProject[index].resource);
-      setRiskIssue(
-        supportProject[index].fixedRiskMitigation.map((item) => ({
-          risk_id: item.risk_id,
-          riskIssue: item.riskIssue || '',
-          impact: item.impact || '',
-          resolution: item.resolution || ''
-        }))
-      );
+      setActions(supportProject[index].action_Point);
+      if (Array.isArray(supportProject.fixedRiskMitigation)) {
+        setRiskIssue(
+          supportProject.fixedRiskMitigation.map((item) => ({
+            risk_id: item.risk_id,
+            riskIssue: item.riskIssue || '',
+            impact: item.impact || '',
+            resolution: item.resolution || ''
+          }))
+        );
+      } else {
+        // Handle the case when fixedRiskMitigation is not an array
+        setRiskIssue([]);
+      }
+      console.log('riskIssues', riskIssue);
       setTableData(
         supportProject[index].mileStone.map((item) => ({
           milestone_Number: item.milestone_Number,
@@ -250,6 +269,32 @@ export default function FixedStatusReview() {
 
   console.log('proj id', projeId);
 
+  useEffect(() => {
+    // Update the project data when the index changes
+    updateProjectData(currentProjectIndex);
+  }, [currentProjectIndex, supportProject]);
+
+  // useEffect(() => {
+  //   // Update the project data when the index changes
+  //   updateProjectData(currentProjectIndex);
+  // }, [currentProjectIndex, supportProject]);
+
+  // const updateData = () => {
+  //   // Increment the index
+  //   setCurrentProjectIndex(currentProjectIndex + 1);
+
+  //   // Check if there's another project available
+  //   if (currentProjectIndex < supportProject.length) {
+  //     updateProjectData(currentProjectIndex);
+  //   }
+  // };
+
+  useEffect(() => {
+    if (currentProjectIndex === supportProject.length - 1) {
+      setShowMessage(true);
+    }
+  }, [currentProjectIndex, supportProject]);
+
   const updateData = () => {
     // Increment the index
     setCurrentProjectIndex(currentProjectIndex + 1);
@@ -261,36 +306,67 @@ export default function FixedStatusReview() {
   };
 
   // Function to navigate to the previous project
-  const goToPreviousProject = () => {
-    if (currentProjectIndex > 0) {
-      setCurrentProjectIndex(currentProjectIndex - 1);
+  const previousData = () => {
+    // Increment the index
+    setCurrentProjectIndex(currentProjectIndex - 1);
+
+    // Check if there's another project available
+    if (currentProjectIndex < supportProject.length) {
+      updateProjectData(currentProjectIndex);
     }
   };
+
+  const isPreviousDisabled = currentProjectIndex <= 0;
+
+  const isNextDisabled = currentProjectIndex >= supportProject.length - 1;
 
   const [opens, setOpens] = useState(false); // State to control the dialog
   const [rowToDelete, setRowToDelete] = useState(null); // State to track the row to delete
 
   const handleDeleteClick = (index) => {
     setRowToDelete(index); // Set the index of the row to delete
-    setOpens(true); // Open the confirmation dialog
+    setOpen(true); // Open the confirmation dialog
   };
 
-  const handleConfirmDelete = () => {
-    // Delete the row using the index in rowToDelete
-    // deleteRow(rowToDelete);
-    setRowToDelete(null); // Reset the row to delete
-    setOpens(false); // Close the confirmation dialog
-  };
+  // const handleConfirmDelete = () => {
+  //   // Delete the row using the index in rowToDelete
+  //   deleteRow(rowToDelete);
+  //   setRowToDelete(null); // Reset the row to delete
+  //   setOpen(false); // Close the confirmation dialog
+  // };
 
   const handleClose = () => {
     setRowToDelete(null); // Reset the row to delete
-    setOpens(false); // Close the confirmation dialog
+    setOpen(false); // Close the confirmation dialog
   };
 
+  const closeMessage = () => {
+    setShowMessage(false);
+  };
+
+  const [opened, setOpened] = useState(false); // State to control the dialog
+  const [rowToDeleted, setRowToDeleted] = useState(null); // State to track the row to delete
+
+  const handleDeleteClicked = (index) => {
+    setRowToDeleted(index); // Set the index of the row to delete
+    setOpened(true); // Open the confirmation dialog
+  };
+
+  // const handleConfirmDelete = () => {
+  //   // Delete the row using the index in rowToDelete
+  //   deleteRow(rowToDelete);
+  //   setRowToDelete(null); // Reset the row to delete
+  //   setOpen(false); // Close the confirmation dialog
+  // };
+
+  const handleClosed = () => {
+    setRowToDeleted(null); // Reset the row to delete
+    setOpened(false); // Close the confirmation dialog
+  };
   useEffect(() => {
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getSchedulerVarience/${projectName}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getSchedulerVarience/${projectName}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -312,7 +388,7 @@ export default function FixedStatusReview() {
 
   useEffect(() => {
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getListOfStatus`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getListOfStatus`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -330,7 +406,7 @@ export default function FixedStatusReview() {
   useEffect(() => {
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getActionPoint/${projectName}/${standardWeekNumber}/${year}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getActionPoint/${projectName}/${standardWeekNumber}/${year}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -340,7 +416,8 @@ export default function FixedStatusReview() {
       )
       .then((res) => {
         console.log('this is response data', res.data);
-        setActionPoints[res.data];
+        setActionPoints(res.data.action_Points);
+        setActionId(res.data.action_Id);
       })
       .catch((err) => {
         console.log('Error', err);
@@ -348,6 +425,8 @@ export default function FixedStatusReview() {
 
     console.log('local stroage', JSON.parse(localStorage.getItem('Details')));
   }, [projectName]);
+
+  console.log('action-id', actionId);
 
   const handleOpenPopover = (event) => {
     setAnchorEl(event.currentTarget); // Open the popover next to the button
@@ -364,11 +443,6 @@ export default function FixedStatusReview() {
     fetchProjectdata();
   }, []);
 
-  useEffect(() => {
-    // Update the project data when the index changes
-    updateProjectData(currentProjectIndex);
-  }, [currentProjectIndex, supportProject]);
-
   const fieldStyle = {
     border: '1px solid #ccc', // Add borders to the fields
     padding: '8px',
@@ -379,7 +453,7 @@ export default function FixedStatusReview() {
 
   const labelStyle = {
     fontWeight: 'bold',
-    color: '#FF8080'
+    color: '#008080'
   };
 
   // Apply hover effect on fields
@@ -397,8 +471,9 @@ export default function FixedStatusReview() {
   const updateStatus = async () => {
     try {
       const response = await axios.post(
-        'https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/createActionReview',
+        'https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/createActionReview',
         {
+          action_id: actionId,
           project_Name: projectName,
           project_Type: 'Support',
           week_No: weekNumber,
@@ -415,7 +490,7 @@ export default function FixedStatusReview() {
 
       console.log('Ok', response.data);
       setTimeout(() => {
-        handleClose();
+        handleClosed();
       }, 1000);
       console.log('response status', response.status);
       enqueueSnackbar('Submitted Successfully', {
@@ -449,6 +524,53 @@ export default function FixedStatusReview() {
     }
   };
 
+  const actionMail = async () => {
+    try {
+      const response = await axios.post(
+        'https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/sendactionmail',
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+          }
+        }
+      );
+
+      console.log('Ok', response.data);
+      setTimeout(() => {
+        handleClose();
+      }, 1000);
+      console.log('response status', response.status);
+      enqueueSnackbar(response.data, {
+        autoHideDuration: 1500,
+        variant: 'success'
+      });
+      setSuccess(true);
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        // Yup validation error
+        console.log('Validation error:', error.message);
+        enqueueSnackbar('Unable to Send', {
+          autoHideDuration: 2000,
+          variant: 'error'
+        });
+      } else {
+        // Other errors (network error, API response error, etc.)
+        console.log('Error:', error);
+        if (error.response) {
+          enqueueSnackbar('Error Occured in Submitted', {
+            autoHideDuration: 2000,
+            variant: 'error'
+          });
+        } else {
+          console.log('Network error or request was canceled:', error.message);
+          // Handle other types of errors here
+        }
+      }
+    }
+  };
+
   const backNavigate = () => {
     window.history.back();
   };
@@ -470,7 +592,7 @@ export default function FixedStatusReview() {
               sx={{
                 textAlign: 'center',
                 fontWeight: 'bold',
-                backgroundColor: '#FF8080',
+                backgroundColor: '#87CEEB',
                 '@media (max-width: 768px)': {
                   ml: -40
                 }
@@ -488,7 +610,7 @@ export default function FixedStatusReview() {
                     </Typography>
                   </Grid>
 
-                  <Grid item xs={12} md={3}>
+                  <Grid item xs={12} md={2}>
                     <Typography>
                       {' '}
                       <span style={labelStyle}>Start Date: </span>
@@ -498,7 +620,7 @@ export default function FixedStatusReview() {
                         })}-${String(startDate).split('-')[0]}`}
                     </Typography>
                   </Grid>
-                  <Grid item xs={12} md={3}>
+                  <Grid item xs={12} md={2}>
                     <Typography>
                       {' '}
                       <span style={labelStyle}>End Date:</span>
@@ -509,174 +631,202 @@ export default function FixedStatusReview() {
                         })}-${String(actual).split('-')[0]}`}
                     </Typography>
                   </Grid>
-                  <Grid item xs={12} md={3}>
-                    <Typography>
-                      <span style={labelStyle}>Resource:</span>
-                      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                        {resource.map((projectResource, index) => (
-                          <Typography key={index} style={{ whiteSpace: 'nowrap', marginRight: '8px' }}>
-                            {projectResource.name}
-                          </Typography>
-                        ))}
-                      </div>
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} md={3}>
-                    <Typography>
-                      <span style={labelStyle}>Project Manager:</span> {projManagerName}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} md={3}>
+                  <Grid item xs={12} md={2}>
                     <Typography>
                       <span style={labelStyle}>Schedule Variance:</span>{' '}
                       {scheduleVariance !== null ? scheduleVariance : 'On Migration'}
                     </Typography>
                   </Grid>
+
+                  <Grid item xs={12} md={3}>
+                    <Typography>
+                      <span style={labelStyle}>Project Manager:</span> {projManagerName}
+                    </Typography>
+                  </Grid>
                   <Grid item xs={12} md={6}>
                     <Typography>
-                      {' '}
-                      <span style={labelStyle}>Description:</span> {description}{' '}
+                      <span style={labelStyle}>Consultant Name: </span>
+                      {resource.map((projectResource, index) => (
+                        <Typography key={index} display="inline">
+                          {projectResource.name}
+                          {index !== resource.length - 1 && ','}
+                        </Typography>
+                      ))}
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12} md={6}>
+                    <Typography>
+                      <span style={labelStyle}>Description:</span> {description}
                     </Typography>
                   </Grid>
                 </Grid>
               </Box>
-              <hr style={hrStyle} />
               <div
                 style={{
-                  marginTop: -1
+                  marginTop: -1,
+                  display: 'flex'
+                  // justifyContent: 'space-between'
                 }}
               >
-                <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-                  <TableContainer sx={{ maxHeight: 440 }}>
-                    <Table stickyHeader aria-label="sticky table">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell sx={{ p: 1 }}>Milestone</TableCell>
-                          <TableCell sx={{ p: 1 }}>Milestone Desc</TableCell>
-                          <TableCell sx={{ p: 2 }}>Status</TableCell>
-                          <TableCell sx={{ p: 2 }}>TargetDate</TableCell>
-                          <TableCell sx={{ p: 1 }}>CompletionDate</TableCell>
-                          <TableCell sx={{ p: 1, borderRight: '2px solid black' }}>Remarks</TableCell>
-                          <TableCell sx={{ p: 1 }}>Risk</TableCell>
-                          <TableCell sx={{ p: 2 }}>Impact</TableCell>
-                          <TableCell sx={{ p: 2 }}>Resolution</TableCell>
+                {/* <Paper sx={{ width: '100%', overflow: 'hidden' }}> */}
+                <TableContainer component={Paper} style={{ flex: 2, minHeight: 220 }}>
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ p: 0.1, color: '#008080' }}>Milestone</TableCell>
+                        <TableCell sx={{ p: 0.1, color: '#008080', width: '400px' }}>Milestone Desc</TableCell>
+                        <TableCell sx={{ p: 0.1, color: '#008080', width: '150px' }}>Status</TableCell>
+                        <TableCell sx={{ p: 0.1, color: '#008080', width: '150px' }}>TargetDate</TableCell>
+                        <TableCell sx={{ p: 0.1, color: '#008080', width: '150px' }}>CompletionDate</TableCell>
+                        <TableCell sx={{ p: 0.1, color: '#008080', width: '200px' }}>Remarks</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {tableData.map((rowData, index) => (
+                        <TableRow key={index}>
+                          <TableCell sx={{ p: 1 }}>
+                            <Typography>{rowData.milestone_Number}</Typography>
+                          </TableCell>
+                          <TableCell sx={{ p: 1 }}>
+                            <Typography>{rowData.milestone_Description}</Typography>
+                          </TableCell>
+                          <TableCell sx={{ p: 1 }}>
+                            <Typography>{rowData.status}</Typography>
+                          </TableCell>
+                          <TableCell
+                            sx={{ p: 1, color: parseISO(rowData.target_Date) < currentDate ? '#F30A49' : 'inherit' }}
+                          >
+                            <Typography>{formatDateToDDMMYYYY(rowData.target_Date)}</Typography>
+                          </TableCell>
+                          <TableCell sx={{ p: 1 }}>
+                            <Typography>{formatDateToDDMMYYYY(rowData.actual_Date)}</Typography>
+                          </TableCell>
+                          <TableCell sx={{ p: 1 }}>
+                            <Typography>{rowData.remarks}</Typography>
+                          </TableCell>
                         </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {tableData.map((rowData, index) => (
-                          <TableRow key={index}>
-                            <TableCell sx={{ p: 1 }}>
-                              <Typography>{rowData.milestone_Number}</Typography>
-                            </TableCell>
-                            <TableCell sx={{ p: 1 }}>
-                              <Typography>{rowData.milestone_Description}</Typography>
-                            </TableCell>
-                            <TableCell sx={{ p: 1 }}>
-                              <Typography>{rowData.status}</Typography>
-                            </TableCell>
-                            <TableCell sx={{ p: 1 }}>
-                              <Typography>{formatDateToDDMMYYYY(rowData.target_Date)}</Typography>
-                            </TableCell>
-                            <TableCell sx={{ p: 1 }}>
-                              <Typography>{formatDateToDDMMYYYY(rowData.actual_Date)}</Typography>
-                            </TableCell>
-                            <TableCell sx={{ p: 1, borderRight: '2px solid black' }}>
-                              <Typography>{rowData.remarks}</Typography>
-                            </TableCell>
-                            {riskIssue[index] && (
-                              <React.Fragment>
-                                <TableCell sx={{ p: 1 }}>
-                                  <Typography>{riskIssue[index].riskIssue}</Typography>
-                                </TableCell>
-                                <TableCell sx={{ p: 1 }}>
-                                  <Typography>{riskIssue[index].impact}</Typography>
-                                </TableCell>
-                                <TableCell sx={{ p: 1 }}>
-                                  <Typography>{riskIssue[index].resolution}</Typography>
-                                </TableCell>
-                              </React.Fragment>
-                            )}
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </Paper>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                {/* <hr style={hrStyle} /> */}
+                {/* </Paper> */}
               </div>
             </Stack>
-            <hr style={hrStyle} />
-            <Grid sx={{ mt: -1 }} container direction="row" spacing={2}>
-              <Grid item xs={4} md={22}>
-                <Stack direction="row" spacing={1}>
-                  <Typography>
-                    {' '}
-                    <span style={{ color: '#4BB543', fontWeight: 'bold' }}>Project Highlights:</span> :{' '}
-                    {projectHighlights}{' '}
-                  </Typography>
-                  <Divider orientation="vertical" />
-                  <Typography>
-                    <span style={{ color: '#4BB543', fontWeight: 'bold' }}>Support Required from Management: </span>
-                    {supportManagement}
-                  </Typography>
-                  <Typography>
-                    <span style={{ color: '#4BB543', fontWeight: 'bold' }}>Resource Update: </span> {resourceUpdate}
-                  </Typography>
-                </Stack>
+            <Grid container direction="row" spacing={2} sx={{ marginBottom: 2 }}>
+              <Grid item xs={12} md={5} sx={{ mt: 0.2, minHeight: 5 }}>
+                {/* <Stack direction="row" spacing={1}> */}
+                <Typography sx={fieldStyle} style={{ minHeight: 163 }}>
+                  <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>Project Highlights:</span>
+                  <div style={{ whiteSpace: 'pre-line' }}>{projectHighlights}</div>{' '}
+                </Typography>
               </Grid>
+              <TableContainer sx={fieldStyle} component={Paper} style={{ flex: 1, marginTop: 18 }}>
+                <Table stickyHeader aria-label="sticky table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ p: 0.2, color: '#4CAF50' }}>Risk</TableCell>
+                      <TableCell sx={{ p: 0.1, color: '#4CAF50' }}>Impact</TableCell>
+                      <TableCell sx={{ p: 0.1, color: '#4CAF50' }}>Resolution</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {riskIssue.map((rowData, index) => (
+                      <TableRow key={index}>
+                        <TableCell sx={{ p: 1 }}>
+                          <Typography>{rowData.riskIssue}</Typography>
+                        </TableCell>
+                        <TableCell sx={{ p: 1 }}>
+                          <Typography>{rowData.impact}</Typography>
+                        </TableCell>
+                        <TableCell sx={{ p: 1 }}>
+                          <Typography>{rowData.resolution}</Typography>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              {/* <Divider orientation="vertical" /> */}
+            </Grid>
+            <Grid container direction="row" spacing={2} sx={{ marginBottom: 2 }}>
+              <Grid item xs={12} md={6} sx={{ mt: -1 }}>
+                <Typography sx={fieldStyle}>
+                  <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>Support Required from Management: </span>
+                  {supportManagement}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={6} sx={{ mt: -1 }}>
+                <Typography sx={fieldStyle}>
+                  <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>Resource Update: </span> {resourceUpdate}
+                </Typography>
+              </Grid>
+              {/* </Stack> */}
             </Grid>
             <Box sx={{ mt: 1, ml: 1, display: 'flex', justifyContent: 'flex-end' }}>
-              <Button
-                size="small"
-                sx={{ mr: 1, backgroundColor: '#B2C8BA' }}
-                variant="contained"
-                onClick={() => backNavigate()}
-              >
+              <Button sx={{ color: 'red', backgroundColor: '#F3E5F5', mr: 1 }} onClick={() => handleDeleteClick()}>
+                Dispatch Action Points
+              </Button>
+              <Dialog open={open} onClose={handleClose}>
+                <DialogTitle>Confirm</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    The Action points have been successfully dispatched to all meeting attendees
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleClose} color="primary">
+                    Cancel
+                  </Button>
+                  <Button onClick={actionMail} color="primary">
+                    Dispatch Action Points
+                  </Button>
+                </DialogActions>
+              </Dialog>
+              <Button sx={{ color: '#4CAF50', backgroundColor: '#F3E5F5', mr: 1 }} onClick={() => backNavigate()}>
                 Back
               </Button>
-              <Button size="small" sx={{ mr: 1 }} variant="contained" onClick={() => handleDeleteClick()}>
+              <Button
+                sx={{ color: '#1E90FF', backgroundColor: '#F3E5F5', mr: 1 }}
+                onClick={() => handleDeleteClicked()}
+              >
                 Action Points
               </Button>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleOpenPopover}
-                sx={{
-                  mr: 1,
-                  backgroundColor: '  #ffcccc',
-                  color: 'black',
-                  height: 30
-                }}
-              >
+              <Button onClick={handleOpenPopover} sx={{ color: '#008080', backgroundColor: '#F3E5F5', mr: 1 }}>
                 List
               </Button>
-              <Button
-                size="small"
-                sx={{ mr: 1, backgroundColor: '#666666' }}
-                variant="contained"
-                onClick={goToPreviousProject}
-              >
+              {/* <Button sx={{ color: '#666666', backgroundColor: '#F3E5F5', mr: 1 }} onClick={goToPreviousProject}>
                 PREV
               </Button>
-              <Button size="small" sx={{ backgroundColor: '#5900a6' }} variant="contained" onClick={updateData}>
+              <Button sx={{ color: '#9C27B0', backgroundColor: '#F3E5F5', mr: 1 }} onClick={updateData}>
                 NEXT
-              </Button>
+              </Button> */}
+              <IconButton
+                aria-label="fingerprint"
+                sx={{ mr: 1, backgroundColor: '#F3E5F5', color: '#666666' }}
+                onClick={previousData}
+                disabled={isPreviousDisabled}
+              >
+                <KeyboardDoubleArrowLeftIcon />
+              </IconButton>
+              <IconButton
+                aria-label="fingerprint"
+                sx={{ color: '#9C27B0', backgroundColor: '#F3E5F5', mr: 1 }}
+                onClick={updateData}
+                disabled={isNextDisabled}
+              >
+                <KeyboardDoubleArrowRightIcon />
+              </IconButton>
             </Box>
           </Card>
         </Grid>
       </Grid>{' '}
-      <Dialog open={opens} onClose={handleClose} maxWidth="md">
+      <Dialog open={opened} onClose={handleClosed} maxWidth="md">
         <DialogTitle>Action Points</DialogTitle>
         <DialogContent>
           <Stack direction="row" spacing={2}>
             <DialogContentText>
-              {/* <TextField
-              sx={{ mt: 2, width: 400 }}
-              rows={4}
-              multiline
-              label="Action Points"
-              value={actionPoints}
-              onChange={(e) => setActionPoints(e.target.value)}
-            />{' '} */}
               <Typography sx={{ width: 200, mt: 1.5 }}>
                 <span style={{ color: '#4a4a4a', fontWeight: 'bold' }}> Previous Week Points: </span>
                 {actions}
@@ -695,7 +845,7 @@ export default function FixedStatusReview() {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleClosed} color="primary">
             Cancel
           </Button>
           <Button color="primary" onClick={updateStatus}>
@@ -737,6 +887,25 @@ export default function FixedStatusReview() {
             <div>Loading projects...</div>
           )}
         </Popover>
+        {showMessage && (
+          <div
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              textAlign: 'center',
+              padding: '20px',
+              background: '#87CEEB',
+              boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            <p>The review for the Fixed Bit project has been successfully concluded.</p>
+            <Button sx={{ color: 'red', mr: 1 }} onClick={closeMessage}>
+              Close
+            </Button>{' '}
+          </div>
+        )}
       </div>
     </Grid>
   );

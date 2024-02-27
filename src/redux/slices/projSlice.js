@@ -63,7 +63,7 @@ export const getAllProjectsOfAnEmpAsync = createAsyncThunk(
   async (_payload, { rejectWithValue }) => {
     try {
       const response = await api.methods.getData(
-        `https://techstephub.focusrtech.com:6060/techstep/auth/service/getAllProjectsOfAnEmp?id=${_payload}`
+        `https://techstephub.focusrtech.com:3030/techstep/auth/service/getAllProjectsOfAnEmp?id=${_payload}`
       );
 
       console.log(response.data);
@@ -119,7 +119,7 @@ export const getListOfTravelDetailsByManagerAsync = createAsyncThunk(
   async ({ rejectWithValue }) => {
     try {
       const response = await api.methods.getData(
-        'https://secure.focusrtech.com:3030/techstep/api/Travel/Service/getListOfTravelDetailsByManager'
+        'https://techstephub.focusrtech.com:3030/techstep/api/Travel/Service/getListOfTravelDetailsByManager'
       );
 
       //   dispatch(getManagerTaskAssignByAsync());

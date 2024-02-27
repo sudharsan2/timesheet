@@ -93,7 +93,7 @@ export default function OpenTicketClosure() {
   useEffect(() => {
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getIdSupportProject/${params.projId}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getIdSupportProject/${params.projId}`,
         {
           headers: {
             'Content-Type': 'application/json',

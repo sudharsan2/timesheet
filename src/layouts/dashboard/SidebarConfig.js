@@ -86,34 +86,208 @@ export const sidebarConfig = [
     ]
   },
 
+  {
+    subheader: 'WFH Request',
+    items: [
+      {
+        title: 'WFH Request',
+        path: PATH_DASHBOARD.travel.root,
+        icon: <AssuredWorkloadOutlinedIcon sx={{ fontSize: 19 }} />,
+        children: [
+          {
+            title: 'request',
+            path: PATH_DASHBOARD.travel.reqWFH
+          },
+          {
+            title: 'request approval',
+            path: PATH_DASHBOARD.travel.requestApproval
+          },
+          {
+            title: 'task entry',
+            path: PATH_DASHBOARD.travel.eodStatus
+          },
+          {
+            title: 'task review',
+            path: PATH_DASHBOARD.travel.reviewStatus
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    subheader: 'travel request',
+    items: [
+      {
+        title: 'travel request',
+        path: PATH_DASHBOARD.travel.root,
+        icon: <ConnectingAirportsOutlinedIcon sx={{ fontSize: 19 }} />,
+        children: [
+          { title: 'request', path: PATH_DASHBOARD.travel.travelSummary },
+          { title: 'request approval', path: PATH_DASHBOARD.travel.reqApproval }
+          // { title: 'request status', path: PATH_DASHBOARD.travel.reqStatus }
+        ]
+      }
+    ]
+  },
+
+  // TASK DETAILS
+
+  {
+    subheader: 'task details',
+    items: [
+      {
+        title: 'task details',
+        path: PATH_DASHBOARD.task.root,
+        icon: <AddTaskSharpIcon sx={{ fontSize: 19 }} />,
+        children: [
+          { title: 'tasklist', path: PATH_DASHBOARD.task.taskList }
+          // { title: 'Task Create', path: PATH_DASHBOARD.task.taskCreate }
+        ]
+      }
+    ]
+  },
+
+  // project Creation
+
+  {
+    subheader: 'Project',
+    items: [
+      {
+        title: 'project',
+        path: PATH_DASHBOARD.project.root,
+        icon: ICONS.analytics,
+        children: [
+          { title: 'project Creation', path: PATH_DASHBOARD.project.projectCreate },
+          // { title: 'Upload Paysquare', path: PATH_DASHBOARD.project.uploadPaysquare },
+          // { title: 'Upload Biometric', path: PATH_DASHBOARD.project.uploadBiometric },
+          { title: 'Upload Details', path: PATH_DASHBOARD.project.uploadDashboard },
+          { title: 'LOP Report', path: PATH_DASHBOARD.project.downloadReport }
+        ]
+      }
+    ]
+  },
+
+  {
+    subheader: 'Project Review',
+    items: [
+      {
+        title: 'Weekly Review',
+        path: PATH_DASHBOARD.review.root,
+        icon: <ReviewsIcon sx={{ fontSize: 19 }} />,
+        children: [
+          // { title: 'project sequence', path: PATH_DASHBOARD.review.projSequence },
+          { title: 'Status Entry', path: PATH_DASHBOARD.review.findProject },
+          // { title: 'fixed status', path: PATH_DASHBOARD.review.fixedStatus },
+          // { title: 'status review', path: PATH_DASHBOARD.review.statusReview },
+          // { title: 'support dashboard', path: PATH_DASHBOARD.review.supportDashboard },
+          { title: 'Reports', path: PATH_DASHBOARD.review.reviewReports }
+        ]
+      }
+    ]
+  },
+
   // {
-  //   subheader: 'WFH Request',
+  //   subheader: 'Project',
   //   items: [
   //     {
-  //       title: 'WFH Request',
-  //       path: PATH_DASHBOARD.travel.root,
-  //       icon: <AssuredWorkloadOutlinedIcon sx={{ fontSize: 19 }} />,
+  //       title: 'project',
+  //       path: PATH_DASHBOARD.project.root,
+  //       icon: ICONS.analytics,
+  //       children: [{ title: 'project Creation', path: PATH_DASHBOARD.project.projectCreate }]
+  //     }
+  //   ]
+  // },
+
+  // MANAGERS APP
+
+  {
+    subheader: 'managers',
+    items: [{ title: 'Overview', path: PATH_DASHBOARD.managers.managersTaskList }]
+  }
+];
+
+export const roleManager = [
+  // GENERAL
+  // ----------------------------------------------------------------------
+  {
+    subheader: 'general',
+    items: [{ title: 'dashboard', path: PATH_DASHBOARD.general.root, icon: ICONS.dashboard }]
+  },
+
+  // USER MANAGEMENT
+  // ----------------------------------------------------------------------
+  // {
+  //   subheader: 'administrator',
+  //   items: [
+  //     {
+  //       title: 'user management',
+  //       path: PATH_DASHBOARD.admin.root,
+  //       icon: ICONS.user,
   //       children: [
-  //         {
-  //           title: 'request',
-  //           path: PATH_DASHBOARD.travel.reqWFH
-  //         },
-  //         {
-  //           title: 'request approval',
-  //           path: PATH_DASHBOARD.travel.requestApproval
-  //         },
-  //         {
-  //           title: 'task entry',
-  //           path: PATH_DASHBOARD.travel.eodStatus
-  //         },
-  //         {
-  //           title: 'task review',
-  //           path: PATH_DASHBOARD.travel.reviewStatus
-  //         }
+  //         { title: 'Users', path: PATH_DASHBOARD.admin.userManagement },
+  //         { title: 'Laptop Details', path: PATH_DASHBOARD.admin.userAsset },
+  //         { title: 'Asset', path: PATH_DASHBOARD.admin.createAsset },
+  //         { title: 'Asset Issues', path: PATH_DASHBOARD.timesheet.approveIssue }
   //       ]
   //     }
   //   ]
   // },
+
+  // TIMESHEET MANAGEMENT
+  //-------------------------------------------------------------------------
+  {
+    subheader: 'timesheet',
+    items: [
+      {
+        title: 'timesheet',
+        path: PATH_DASHBOARD.timesheet.root,
+        icon: <PersonAddAltIcon sx={{ fontSize: 19 }} />,
+        children: [
+          { title: 'Entry', path: PATH_DASHBOARD.timesheet.timesheet },
+          { title: 'Reports', path: PATH_DASHBOARD.timesheet.reports },
+          { title: 'KPI-KRA', path: PATH_DASHBOARD.timesheet.kpiKraSelfRating },
+          { title: 'KPI-KRA Approval', path: PATH_DASHBOARD.timesheet.kpiKraManagerRating },
+          { title: 'Timesheet Approval', path: PATH_DASHBOARD.timesheet.approval },
+          // { title: 'Leave', path: PATH_DASHBOARD.timesheet.leaveAndOvertimeApplication },
+          // { title: 'Leave Approval', path: PATH_DASHBOARD.timesheet.leaveApproval },
+          // { title: 'Over Time Entry', path: PATH_DASHBOARD.timesheet.overTime },
+          // { title: 'Over Time Approval', path: PATH_DASHBOARD.timesheet.overTimeApproval },
+          { title: 'settings', path: PATH_DASHBOARD.timesheet.settings },
+          { title: 'Order Food', path: PATH_DASHBOARD.timesheet.orderFood }
+        ]
+      }
+    ]
+  },
+
+  {
+    subheader: 'WFH Request',
+    items: [
+      {
+        title: 'WFH Request',
+        path: PATH_DASHBOARD.travel.root,
+        icon: <AssuredWorkloadOutlinedIcon sx={{ fontSize: 19 }} />,
+        children: [
+          {
+            title: 'request',
+            path: PATH_DASHBOARD.travel.reqWFH
+          },
+          {
+            title: 'request approval',
+            path: PATH_DASHBOARD.travel.requestApproval
+          },
+          {
+            title: 'task entry',
+            path: PATH_DASHBOARD.travel.eodStatus
+          },
+          {
+            title: 'task review',
+            path: PATH_DASHBOARD.travel.reviewStatus
+          }
+        ]
+      }
+    ]
+  },
 
   {
     subheader: 'travel request',
@@ -219,22 +393,22 @@ export const CRMandManagerSidebar = [
 
   // USER MANAGEMENT
   // ----------------------------------------------------------------------
-  {
-    subheader: 'administrator',
-    items: [
-      {
-        title: 'user management',
-        path: PATH_DASHBOARD.admin.root,
-        icon: ICONS.user,
-        children: [
-          { title: 'Users', path: PATH_DASHBOARD.admin.userManagement },
-          { title: 'Laptop Details', path: PATH_DASHBOARD.admin.userAsset },
-          { title: 'Asset', path: PATH_DASHBOARD.admin.createAsset },
-          { title: 'Asset Issues', path: PATH_DASHBOARD.timesheet.approveIssue }
-        ]
-      }
-    ]
-  },
+  // {
+  //   subheader: 'administrator',
+  //   items: [
+  //     {
+  //       title: 'user management',
+  //       path: PATH_DASHBOARD.admin.root,
+  //       icon: ICONS.user,
+  //       children: [
+  //         { title: 'Users', path: PATH_DASHBOARD.admin.userManagement },
+  //         { title: 'Laptop Details', path: PATH_DASHBOARD.admin.userAsset },
+  //         { title: 'Asset', path: PATH_DASHBOARD.admin.createAsset },
+  //         { title: 'Asset Issues', path: PATH_DASHBOARD.timesheet.approveIssue }
+  //       ]
+  //     }
+  //   ]
+  // },
 
   // TIMESHEET MANAGEMENT
   //-------------------------------------------------------------------------
@@ -261,22 +435,34 @@ export const CRMandManagerSidebar = [
       }
     ]
   },
-  // {
-  //   subheader: 'WFH Request',
-  //   items: [
-  //     {
-  //       title: 'WFH Request',
-  //       path: PATH_DASHBOARD.travel.root,
-  //       icon: <AssuredWorkloadOutlinedIcon sx={{ fontSize: 19 }} />,
-  //       children: [
-  //         {
-  //           title: 'request',
-  //           path: PATH_DASHBOARD.travel.reqWFH
-  //         }
-  //       ]
-  //     }
-  //   ]
-  // },
+  {
+    subheader: 'WFH Request',
+    items: [
+      {
+        title: 'WFH Request',
+        path: PATH_DASHBOARD.travel.root,
+        icon: <AssuredWorkloadOutlinedIcon sx={{ fontSize: 19 }} />,
+        children: [
+          {
+            title: 'request',
+            path: PATH_DASHBOARD.travel.reqWFH
+          },
+          {
+            title: 'request approval',
+            path: PATH_DASHBOARD.travel.requestApproval
+          },
+          {
+            title: 'task entry',
+            path: PATH_DASHBOARD.travel.eodStatus
+          },
+          {
+            title: 'task review',
+            path: PATH_DASHBOARD.travel.reviewStatus
+          }
+        ]
+      }
+    ]
+  },
 
   {
     subheader: 'CRM',
@@ -401,26 +587,26 @@ export const userSidebarConfig = [
       }
     ]
   },
-  // {
-  //   subheader: 'WFH Request',
-  //   items: [
-  //     {
-  //       title: 'WFH Request',
-  //       path: PATH_DASHBOARD.travel.root,
-  //       icon: <AssuredWorkloadOutlinedIcon sx={{ fontSize: 19 }} />,
-  //       children: [
-  //         {
-  //           title: 'request',
-  //           path: PATH_DASHBOARD.travel.reqWFH
-  //         },
-  //         {
-  //           title: 'eod entry',
-  //           path: PATH_DASHBOARD.travel.eodStatus
-  //         }
-  //       ]
-  //     }
-  //   ]
-  // },
+  {
+    subheader: 'WFH Request',
+    items: [
+      {
+        title: 'WFH Request',
+        path: PATH_DASHBOARD.travel.root,
+        icon: <AssuredWorkloadOutlinedIcon />,
+        children: [
+          {
+            title: 'request',
+            path: PATH_DASHBOARD.travel.reqWFH
+          },
+          {
+            title: 'Task entry',
+            path: PATH_DASHBOARD.travel.eodStatus
+          }
+        ]
+      }
+    ]
+  },
   {
     subheader: 'travel request',
     items: [
@@ -500,26 +686,26 @@ export const pmoExcecutive = [
       }
     ]
   },
-  // {
-  //   subheader: 'WFH Request',
-  //   items: [
-  //     {
-  //       title: 'WFH Request',
-  //       path: PATH_DASHBOARD.travel.root,
-  //       icon: <AssuredWorkloadOutlinedIcon sx={{ fontSize: 19 }} />,
-  //       children: [
-  //         {
-  //           title: 'request',
-  //           path: PATH_DASHBOARD.travel.reqWFH
-  //         },
-  //         {
-  //           title: 'eod entry',
-  //           path: PATH_DASHBOARD.travel.eodStatus
-  //         }
-  //       ]
-  //     }
-  //   ]
-  // },
+  {
+    subheader: 'WFH Request',
+    items: [
+      {
+        title: 'WFH Request',
+        path: PATH_DASHBOARD.travel.root,
+        icon: <AssuredWorkloadOutlinedIcon />,
+        children: [
+          {
+            title: 'request',
+            path: PATH_DASHBOARD.travel.reqWFH
+          },
+          {
+            title: 'Task entry',
+            path: PATH_DASHBOARD.travel.eodStatus
+          }
+        ]
+      }
+    ]
+  },
   {
     subheader: 'travel request',
     items: [

@@ -142,7 +142,7 @@ export default function CreateFixed() {
 
   useEffect(() => {
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getAllProjects`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getAllProjects`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -205,7 +205,7 @@ export default function CreateFixed() {
     console.log('proj Name', projectName);
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getFixeddetails/${projectName}/${standardWeekNumber}/${year}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getFixeddetails/${projectName}/${standardWeekNumber}/${year}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -247,7 +247,7 @@ export default function CreateFixed() {
 
   useEffect(() => {
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getListOfStatus`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getListOfStatus`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -268,7 +268,7 @@ export default function CreateFixed() {
   const saveStatus = async () => {
     try {
       const response = await axios.post(
-        'https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/createUpdateFixedProject',
+        'https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/createUpdateFixedProject',
         {
           projectName: String(projectName),
           projectManager: String(projManagerName),
@@ -322,11 +322,79 @@ export default function CreateFixed() {
     }
   };
 
+  // const updateStatus = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await axios.post(
+  //       'https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/createUpdateFixedProject',
+  //       {
+  //         proj_Id: projeId,
+  //         projectName: String(projectName),
+  //         projectManager: String(projManagerName),
+  //         resource: String(resourceUpdate),
+  //         reviewDate: String(actual),
+  //         projectHighlights: String(projectHighlights),
+  //         supportManagement: String(supportManagement),
+  //         mileStone: tableData,
+  //         fixedRiskMitigation: riskIssue
+  //       },
+  //       {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Authorization: 'Bearer ' + token
+  //         }
+  //       }
+  //     );
+  //     console.log('Ok', response.data);
+  //     setLoading(true);
+  //     setTimeout(() => {
+  //       navigate(PATH_DASHBOARD.review.findProject);
+  //     }, 1000);
+  //     enqueueSnackbar('Submitted Successfully', {
+  //       autoHideDuration: 2000,
+  //       variant: 'success'
+  //     });
+
+  //     setSuccess(true);
+  //     console.log('response status', response.status);
+  //     // navigate(PATH_DASHBOARD.admin.userManagement);
+  //   } catch (error) {
+  //     if (error.name === 'ValidationError') {
+  //       // Yup validation error
+  //       console.log('Validation error:', error.message);
+  //       enqueueSnackbar(error.message, {
+  //         autoHideDuration: 2000,
+  //         variant: 'error'
+  //       });
+  //     } else {
+  //       // Other errors (network error, API response error, etc.)
+  //       console.log('Error:', error);
+  //       if (error.response) {
+  //         console.log('Error response status', error.response.status);
+  //         console.log('Error response data', error.response.data.message);
+  //         enqueueSnackbar(error.response.data.message, {
+  //           autoHideDuration: 2000,
+  //           variant: 'error'
+  //         });
+  //       } else {
+  //         console.log('Network error or request was canceled:', error.message);
+  //         // Handle other types of errors here
+  //       }
+  //     }
+  //     setLoading(true);
+  //   }
+
   const updateStatus = async () => {
     setLoading(true);
+
     try {
+      // Check if projectHighlights is empty or not provided
+      if (!projectHighlights) {
+        throw new Error('Please fill in the Project Highlights field.');
+      }
+
       const response = await axios.post(
-        'https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/createUpdateFixedProject',
+        'https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/createUpdateFixedProject',
         {
           proj_Id: projeId,
           projectName: String(projectName),
@@ -345,8 +413,9 @@ export default function CreateFixed() {
           }
         }
       );
+
       console.log('Ok', response.data);
-      setLoading(true);
+      setLoading(false);
       setTimeout(() => {
         navigate(PATH_DASHBOARD.review.findProject);
       }, 1000);
@@ -357,11 +426,9 @@ export default function CreateFixed() {
 
       setSuccess(true);
       console.log('response status', response.status);
-      // navigate(PATH_DASHBOARD.admin.userManagement);
     } catch (error) {
-      if (error.name === 'ValidationError') {
-        // Yup validation error
-        console.log('Validation error:', error.message);
+      if (error.message === 'Please fill in the Project Highlights field.') {
+        // Handle specific error message for missing projectHighlights
         enqueueSnackbar(error.message, {
           autoHideDuration: 2000,
           variant: 'error'
@@ -381,7 +448,7 @@ export default function CreateFixed() {
           // Handle other types of errors here
         }
       }
-      setLoading(true);
+      setLoading(false);
     }
   };
   return (
@@ -433,7 +500,7 @@ export default function CreateFixed() {
                       width: 400
                     }
                   }}
-                  label="Product Manager"
+                  label="Project Manager"
                   value={projManagerName}
                   onChange={(e) => setProjManagerName(e.target.value)}
                 />

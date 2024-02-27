@@ -11,7 +11,7 @@ export default function SupportDashboard() {
 
   useEffect(() => {
     axios
-      .get('https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getDashBoardDetails', {
+      .get('https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getDashBoardDetails', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token

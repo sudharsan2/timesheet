@@ -74,8 +74,8 @@ export default function OnsiteProject() {
   const managers = useSelector(getManagersListFromUser);
   const groups = useSelector(getAllUsersFromGroups);
   const designations = useSelector(getDesignationsListFromUser);
-  const { onsites } = useSelector((state) => state.user);
-  console.log('projectt', onsites);
+  // const { onsites } = useSelector((state) => state.user);
+  // console.log('projectt', onsites);
   const { users } = useSelector((state) => state.user);
   console.log('First', users);
   const error = useSelector((state) => state.project.error);
@@ -126,6 +126,8 @@ export default function OnsiteProject() {
     contact_Number: Yup.number().required('Contact Number is required'),
     mail: Yup.string().email('Email must be a valid email address').required('Email is required'),
     address: Yup.string().required('Address is required'),
+    ticket: Yup.string().required('ticket is required'),
+    arranged_by: Yup.string().required('arranged_by is required'),
     advanced_paid: Yup.string().required('Advanced Paid is required')
   });
 
@@ -141,24 +143,26 @@ export default function OnsiteProject() {
     initialValues,
     initialValues: {
       user_id: userDetails.id || '',
-      primary_Project: onsites.primary_Project || '',
-      client_Name: onsites.client_Name || '',
-      location: onsites.location || '',
-      support_Type: onsites.support_Type || '',
-      duration: onsites.duration || '',
-      reporting_date: onsites.reporting_date || '',
-      project_Manager: onsites.project_Manager || '',
-      accomadation: onsites.accomadation || '',
-      travel_Arrangement: onsites.travel_Arrangement || '',
-      onsite_Allowance: onsites.onsite_Allowance || '',
+      primary_Project: '',
+      client_Name: '',
+      location: '',
+      support_Type: '',
+      duration: '',
+      reporting_date: '',
+      project_Manager: '',
+      accomadation: '',
+      travel_Arrangement: '',
+      onsite_Allowance: '',
       // kra: onsites.kra || '',
-      contact_Name: onsites.contact_Name || '',
-      contact_Number: onsites.contact_Number || '',
-      mail: onsites.mail || '',
-      address: onsites.address || '',
-      allowance_amount: onsites.allowance_amount || '',
-      advanced_paid: onsites.advanced_paid || '',
-      advance_amount: onsites.advance_amount || ''
+      contact_Name: '',
+      contact_Number: '',
+      mail: '',
+      address: '',
+      allowance_amount: '',
+      advanced_paid: '',
+      advance_amount: '',
+      ticket: '',
+      arranged_by: ''
     },
     validationSchema: NewUserSchema,
     onSubmit: async (values, { setSubmitting, setErrors }) => {
@@ -183,7 +187,9 @@ export default function OnsiteProject() {
           address: values.address,
           allowance_amount: values.allowance_amount,
           advanced_paid: values.advanced_paid,
-          advance_amount: values.advance_amount
+          advance_amount: values.advance_amount,
+          ticket: values.ticket,
+          arranged_by: values.arranged_by
         };
         await dispatch(postProjectDetailsAsync(payload));
 
@@ -291,6 +297,8 @@ export default function OnsiteProject() {
       setFieldValue('reporting_date', '');
       setFieldValue('address', '');
       setFieldValue('advanced_paid', '');
+      setFieldValue('ticket', '');
+      setFieldValue('arranged_by', '');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [msg]);
@@ -506,6 +514,46 @@ export default function OnsiteProject() {
                           <MenuItem value="Train">Train</MenuItem>
                           <MenuItem value="Bus">Bus</MenuItem>
                           <MenuItem value="Air">Air</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <FormControl fullWidth>
+                        <InputLabel id="Ticket-Project-label" sx={{}}>
+                          Ticket
+                        </InputLabel>
+                        <Select
+                          size="small"
+                          fullWidth
+                          labelId="Ticket-Project-label"
+                          id="Ticket-select"
+                          label="Ticket"
+                          name="Ticket"
+                          {...getFieldProps('ticket')}
+                          error={Boolean(touched.ticket && errors.ticket)}
+                          helperText={touched.ticket && errors.ticket}
+                          MenuProps={MenuProps}
+                        >
+                          <MenuItem value="Confirmed">Confirmed</MenuItem>
+                          <MenuItem value="Not Confirmed">Not Confirmed</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <FormControl fullWidth>
+                        <InputLabel id="arrangedby-Project-label" sx={{}}>
+                          Arranged by
+                        </InputLabel>
+                        <Select
+                          size="small"
+                          fullWidth
+                          labelId="arrangedby-Project-label"
+                          id="arrangedby-select"
+                          label="Arranged by"
+                          name="Arranged by"
+                          {...getFieldProps('arranged_by')}
+                          error={Boolean(touched.arranged_by && errors.arranged_by)}
+                          helperText={touched.arranged_by && errors.arranged_by}
+                          MenuProps={MenuProps}
+                        >
+                          <MenuItem value="FocusR">FocusR</MenuItem>
+                          <MenuItem value="Client">Client</MenuItem>
                         </Select>
                       </FormControl>
                       {/* <TextField

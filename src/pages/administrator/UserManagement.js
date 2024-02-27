@@ -175,7 +175,7 @@ export default function UserList() {
         <HeaderBreadcrumbs
           heading={title}
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
+            { name: 'Dashboard', href: PATH_DASHBOARD.general.root },
             { name: 'User Management', href: PATH_DASHBOARD.admin.userManagement },
             { name: 'List' }
           ]}

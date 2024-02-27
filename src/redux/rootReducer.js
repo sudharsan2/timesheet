@@ -18,6 +18,8 @@ import masterReducer from './slices/masterSlice';
 import projectReducer from './slices/projectSlice';
 import projReducer from './slices/projSlice';
 import holiReducer from './slices/holidaySlice';
+import WorkFromHome from './slices/WfhSlice';
+import wfhApprovalReducer from './slices/wfhApprovalSlice';
 
 // ----------------------------------------------------------------------
 
@@ -163,6 +165,22 @@ const holidayPersisConfig = {
   blacklist: ['isLoading', 'error']
 };
 
+const wfhApprovalPersistConfig = {
+  key: 'wfhApproval',
+  storage,
+  keyPrefix: 'redux-',
+  whitelist: ['data', 'approvalData', 'taskData', 'status', 'wfhIdDetails'],
+  blacklist: ['isLoading', 'error']
+};
+
+const WfhPersistConfig = {
+  key: 'wfh',
+  storage,
+  keyPrefix: 'redux-',
+  whitelist: ['wfhRequest', 'editData'],
+  blacklist: ['isLoading', 'error']
+};
+
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   user: persistReducer(userPersistConfig, userReducer),
@@ -180,7 +198,9 @@ const rootReducer = combineReducers({
   master: persistReducer(masterPersisConfig, masterReducer),
   project: persistReducer(calenderPersisConfig, projectReducer),
   proj: persistReducer(projectPersisConfig, projReducer),
-  holiday: persistReducer(holidayPersisConfig, holiReducer)
+  holiday: persistReducer(holidayPersisConfig, holiReducer),
+  wfh: persistReducer(WfhPersistConfig, WorkFromHome),
+  wfhApproval: persistReducer(wfhApprovalPersistConfig, wfhApprovalReducer)
 });
 
 const reducers = (state, action) => {
@@ -200,6 +220,8 @@ const reducers = (state, action) => {
     storage.removeItem('redux-project');
     storage.removeItem('redux-proj');
     storage.removeItem('redux-holiday');
+    storage.removeItem('redux-wfh');
+    storage.removeItem('redux-wfhApproval');
     return rootReducer(undefined, action);
   }
 

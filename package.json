@@ -3,7 +3,7 @@
   "author": "minimals.cc",
   "version": "2.6.0",
   "private": true,
-  "homepage": "https://secure.focusrtech.com:5050/techstep/",
+  "homepage": "https://secure.focusrtech.com:3030/techstep/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

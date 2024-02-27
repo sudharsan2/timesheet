@@ -19,12 +19,16 @@ import {
   Stack,
   TextField,
   Typography,
+  IconButton,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
+  Card,
   DialogTitle
 } from '@mui/material';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import { useSnackbar } from 'notistack';
 import { styled } from '@mui/material/styles';
 import { useState, useEffect } from 'react';
@@ -44,6 +48,9 @@ export default function SupportProjectReview() {
   const [closed, setClosed] = useState('');
   const [ticketSummary, setTicketSummary] = useState([]);
   const [chartSupport, setChartSupport] = useState([]);
+  const [closedCount, setClosedCount] = useState('');
+  const [totalCount, setTotalCount] = useState('');
+  const [reportedCount, setReportedCount] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [supportProject, setSupportProject] = useState([]);
@@ -61,9 +68,12 @@ export default function SupportProjectReview() {
   const [actionPoints, setActionPoints] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const [actions, setActions] = useState('');
+  const [actionId, setActionId] = useState('');
   // eslint-disable-next-line prefer-destructuring
   const weekNumber = params.weekNumber;
   const year = params.year;
+
+  const [showMessage, setShowMessage] = useState(false);
 
   const token = localStorage.getItem('accessToken');
   console.log('Year', year);
@@ -73,7 +83,7 @@ export default function SupportProjectReview() {
   const fetchProjectdata = () => {
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getSupportWeekNOStatus/${weekNumber}/${year}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getSupportWeekNOStatus/${weekNumber}/${year}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -102,6 +112,10 @@ export default function SupportProjectReview() {
           setServiceRequestOne(res.data[0].no_SR_Reff);
           setRisk(res.data[0].riskMitigation);
           setActions(res.data[0].action_Point);
+          const isLastProject = currentProjectIndex === res.data.length - 1;
+          if (isLastProject) {
+            setShowMessage(true);
+          }
         }
       })
       .catch((err) => {
@@ -141,8 +155,20 @@ export default function SupportProjectReview() {
       setServiceRequest(supportProject[index].no_Sr);
       setServiceRequestOne(supportProject[index].no_SR_Reff);
       setRisk(supportProject[index].riskMitigation);
+      setActions(supportProject[index].action_Point);
     }
   };
+
+  useEffect(() => {
+    // Update the project data when the index changes
+    updateProjectData(currentProjectIndex);
+  }, [currentProjectIndex, supportProject]);
+
+  useEffect(() => {
+    if (currentProjectIndex === supportProject.length - 1) {
+      setShowMessage(true);
+    }
+  }, [currentProjectIndex, supportProject]);
 
   const updateData = () => {
     // Increment the index
@@ -164,10 +190,14 @@ export default function SupportProjectReview() {
     }
   };
 
+  const isPreviousDisabled = currentProjectIndex <= 0;
+
+  const isNextDisabled = currentProjectIndex >= supportProject.length - 1;
+
   useEffect(() => {
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getOverAllProjStatusfchart/${projectName}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getOverAllProjStatusfchart/${projectName}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -178,13 +208,16 @@ export default function SupportProjectReview() {
       .then((res) => {
         console.log('supportChart', res.data);
         setChartSupport(res.data);
+        setClosedCount(res.data[0].total_CLOSED);
+        setTotalCount(res.data[0].total_MODULE_TOTAL);
+        setReportedCount(res.data[0].total_REPOTED);
       })
       .catch((err) => {
         console.log('chart', err);
       });
 
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getPrevWeekData/${projectName}`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getPrevWeekData/${projectName}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -200,7 +233,7 @@ export default function SupportProjectReview() {
 
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getSchedulerVarience/${projectName}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getSchedulerVarience/${projectName}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -217,10 +250,12 @@ export default function SupportProjectReview() {
       });
   }, [projectName]);
 
+  console.log('total', totalCount);
+
   useEffect(() => {
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getActionPoint/${projectName}/${standardWeekNumber}/${year}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getActionPoint/${projectName}/${standardWeekNumber}/${year}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -230,7 +265,8 @@ export default function SupportProjectReview() {
       )
       .then((res) => {
         console.log('this is response data', res.data);
-        setActionPoints(res.data);
+        setActionPoints(res.data.action_Points);
+        setActionId(res.data.action_Id);
       })
       .catch((err) => {
         console.log('Error', err);
@@ -239,13 +275,16 @@ export default function SupportProjectReview() {
     console.log('local stroage', JSON.parse(localStorage.getItem('Details')));
   }, [projectName]);
 
+  console.log('Action-id', actionId);
+
   console.log('4444', actionPoints);
 
   const updateStatus = async () => {
     try {
       const response = await axios.post(
-        'https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/createActionReview',
+        'https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/createActionReview',
         {
+          action_id: actionId,
           project_Name: projectName,
           project_Type: 'Support',
           week_No: weekNumber,
@@ -296,6 +335,68 @@ export default function SupportProjectReview() {
     }
   };
 
+  const actionMail = async () => {
+    try {
+      const response = await axios.post(
+        'https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/sendactionmail',
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+          }
+        }
+      );
+
+      console.log('Ok', response.data);
+      setTimeout(() => {
+        handleCloses();
+      }, 1000);
+      console.log('response status', response.status);
+      enqueueSnackbar(response.data, {
+        autoHideDuration: 1500,
+        variant: 'success'
+      });
+      setSuccess(true);
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        // Yup validation error
+        console.log('Validation error:', error.message);
+        enqueueSnackbar('Unable to Send', {
+          autoHideDuration: 2000,
+          variant: 'error'
+        });
+      } else {
+        // Other errors (network error, API response error, etc.)
+        console.log('Error:', error);
+        if (error.response) {
+          console.log('Error response status', error.response.status);
+          console.log('Error response data', error.response.data.message);
+          enqueueSnackbar('Error Occured in Submitted', {
+            autoHideDuration: 2000,
+            variant: 'error'
+          });
+        } else {
+          console.log('Network error or request was canceled:', error.message);
+          // Handle other types of errors here
+        }
+      }
+    }
+  };
+
+  const [opens, setOpens] = useState(false); // State to control the dialog
+  const [rowToDeletes, setRowToDeletes] = useState(null); // State to track the row to delete
+
+  const handleDeleteClicks = (index) => {
+    setRowToDeletes(index); // Set the index of the row to delete
+    setOpens(true); // Open the confirmation dialog
+  };
+
+  const handleCloses = () => {
+    setRowToDeletes(null); // Reset the row to delete
+    setOpens(false); // Close the confirmation dialog
+  };
+
   const [open, setOpen] = useState(false); // State to control the dialog
   const [rowToDelete, setRowToDelete] = useState(null); // State to track the row to delete
 
@@ -333,6 +434,10 @@ export default function SupportProjectReview() {
   //   setAnchorEl(null);
   // };
 
+  const closeMessage = () => {
+    setShowMessage(false);
+  };
+
   const handleClosePopOver = (event) => {
     // Check if the event target is not a project list item
     if (!event.target.classList.contains('project-list-item')) {
@@ -358,7 +463,7 @@ export default function SupportProjectReview() {
 
   const labelStyle = {
     fontWeight: 'bold',
-    color: '#FF8080'
+    color: '#008080'
   };
 
   // Apply hover effect on fields
@@ -376,7 +481,7 @@ export default function SupportProjectReview() {
         sx={{
           fontWeight: 'bold',
           textAlign: 'center',
-          backgroundColor: '#FF8080',
+          backgroundColor: '#87CEEB',
           mt: -3,
           '@media (max-width: 768px)': {
             ml: -40
@@ -392,7 +497,11 @@ export default function SupportProjectReview() {
             <span style={labelStyle}>Project Name:</span> {projectName}
           </Typography>
         </Grid>
-
+        <Grid item xs={12} md={3}>
+          <Typography>
+            <span style={labelStyle}>Project Manager:</span> {projectManager}
+          </Typography>
+        </Grid>
         <Grid item xs={12} md={3}>
           <Typography>
             {' '}
@@ -407,7 +516,7 @@ export default function SupportProjectReview() {
         <Grid item xs={12} md={3}>
           <Typography>
             {' '}
-            <span style={labelStyle}>End Date:</span>
+            <span style={labelStyle}>End Date: </span>
             {/* {String(endDate).slice(0, 10)} */}
             {endDate &&
               `${String(endDate).split('-')[2].slice(0, 2)}-${new Date(endDate).toLocaleString('en-us', {
@@ -415,9 +524,10 @@ export default function SupportProjectReview() {
               })}-${String(endDate).split('-')[0]}`}
           </Typography>
         </Grid>
-        <Grid item xs={12} md={3}>
-          <Typography>
-            <span style={labelStyle}>Resource:</span>
+
+        {/* <Grid item xs={12} md={3}>
+          <Typography style={{ display: 'flex', alignItems: 'baseline' }}>
+            <span style={labelStyle}>Resource: </span>
             <div style={{ display: 'flex', flexWrap: 'wrap' }}>
               {resourceUpdate.map((resource, index) => (
                 <Typography key={index} style={{ whiteSpace: 'nowrap', marginRight: '8px' }}>
@@ -426,29 +536,49 @@ export default function SupportProjectReview() {
               ))}
             </div>
           </Typography>
-        </Grid>
-        <Grid item xs={12} md={3}>
+        </Grid> */}
+        {/* <Grid item xs={12} md={3}>
+          <Typography style={{ display: 'flex', alignItems: 'baseline' }}>
+            <span style={labelStyle}>Resource:</span>
+            {resourceUpdate.map((resource, index) => (
+              <Typography key={index} component="span" style={{ whiteSpace: 'nowrap', marginRight: '8px' }}>
+                {resource.name},
+              </Typography>
+            ))}
+          </Typography>
+        </Grid> */}
+        {/* <Grid item xs={12} md={3}>
           <Typography>
             <span style={labelStyle}>Project Manager:</span> {projectManager}
           </Typography>
-        </Grid>
-        <Grid item xs={12} md={3}>
+        </Grid> */}
+        {/* <Grid item xs={12} md={3}>
           <Typography>
             <span style={labelStyle}>Schedule Variance:</span> {scheduleVariance}{' '}
           </Typography>
-        </Grid>
-        <Grid item xs={12} md={3}>
+        </Grid> */}
+        {/* <Grid item xs={12} md={3}>
           <Typography>
             {' '}
             <span style={labelStyle}>Inc/Req Reported:</span> {reported}{' '}
           </Typography>
-        </Grid>
-        <Grid item xs={12} md={3}>
+        </Grid> */}
+        {/* <Grid item xs={12} md={3}>
           <Typography>
             {' '}
             <span style={labelStyle}>Inc/Req Closed:</span> : {closed}{' '}
           </Typography>
           <Divider orientation="vertical" />
+        </Grid> */}
+        <Grid item xs={12} md={12}>
+          <Typography>
+            <span style={labelStyle}>ConsultantName:</span>
+            {resourceUpdate.map((resource, index) => (
+              <Typography key={index} display="inline">
+                {resource.name},
+              </Typography>
+            ))}
+          </Typography>
         </Grid>
       </Grid>
 
@@ -456,8 +586,16 @@ export default function SupportProjectReview() {
       <Grid container direction="row" spacing={3}>
         <Grid container item xs={12} md={8}>
           <Grid item xs={12} md={2.5} sx={{ borderRight: '2px solid black' }}>
-            <Stack spacing={2}>
-              <Typography style={labelStyle}>Open Tickets {weekNumber}</Typography>
+            <Stack spacing={0.5}>
+              <Typography>
+                {' '}
+                <span style={labelStyle}>Inc/Req Reported:</span> {reported}{' '}
+              </Typography>
+              <Typography>
+                {' '}
+                <span style={labelStyle}>Inc/Req Closed</span> : {closed}{' '}
+              </Typography>
+              <Typography style={labelStyle}>Open Tickets</Typography>
               {ticketSummary.map((summary, index) => (
                 <Stack direction="row" spacing={2} key={`openTicketSummary${index}`}>
                   {summary.projectModule && <Typography>{summary.projectModule} :</Typography>}
@@ -478,9 +616,9 @@ export default function SupportProjectReview() {
                     <YAxis />
                     <Tooltip />
                     {/* <Legend /> */}
+                    <Bar dataKey="repoted" fill="#4169E1" name="Reported" />
                     <Bar dataKey="closed" fill="#228B22" name="Closed" />
                     <Bar dataKey="module_TOTAL" fill="#FF0000" name="Open" />
-                    <Bar dataKey="repoted" fill="#4169E1" name="Reported" />
                   </BarChart>
                 </div>
               ))}
@@ -491,129 +629,140 @@ export default function SupportProjectReview() {
 
         <Grid direction="row" item xs={12} md={4}>
           <Typography style={labelStyle}>Project Overall Status</Typography>
-          <BarChart width={150} height={150} data={chartSupport}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            {/* <CartesianGrid strokeDasharray="2 2" /> */}
-            <Tooltip />
-            {/* <Legend /> */}
-            <Bar dataKey="total_CLOSED" fill="#228B22" name="Closed" />
-            <Bar dataKey="total_MODULE_TOTAL" fill="#FF0000" name="Open" />
-            <Bar dataKey="total_REPOTED" fill="#4169E1" name="Reported" />
-          </BarChart>
+          <Stack direction="row">
+            <BarChart width={150} height={150} data={chartSupport}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              {/* <CartesianGrid strokeDasharray="2 2" /> */}
+              <Tooltip />
+              {/* <Legend /> */}
+              <Bar dataKey="total_REPOTED" fill="#4169E1" name="Reported" />
+              <Bar dataKey="total_CLOSED" fill="#228B22" name="Closed" />
+              <Bar dataKey="total_MODULE_TOTAL" fill="#FF0000" name="Open" />
+            </BarChart>
+            <div style={{ flexDirection: 'row' }}>
+              <Typography sx={{ ml: 7, mt: 2, color: '#4169E1' }}>Reported: {reportedCount}</Typography>
+              <Typography sx={{ ml: 7, mt: 2, color: '#228B22' }}>Closed: {closedCount}</Typography>
+              <Typography sx={{ ml: 7, mt: 2, color: '#FF0000' }}>Open: {totalCount}</Typography>
+            </div>
+          </Stack>
           <CustomLegend />
         </Grid>
       </Grid>
       <hr style={hrStyle} />
       <Grid container direction="row" spacing={2} sx={{ marginBottom: 2 }}>
-        <Grid item xs={12} md={5} sx={{ mt: 1 }}>
-          <Typography sx={fieldStyle}>
-            <span style={labelStyle}>Project Highlight:</span> {projectHighlights}
+        <Grid item xs={12} md={6} sx={{ mt: 1 }}>
+          <Typography sx={fieldStyle} style={{ minHeight: 150 }}>
+            <span style={{ color: '#008080', fontWeight: 'bold' }}>Project Highlights:</span>
+            <div style={{ whiteSpace: 'pre-line' }}>{projectHighlights}</div>{' '}
           </Typography>
         </Grid>
-        <Grid item xs={12} md={7} sx={{ mt: 1 }}>
-          <Stack direction="row" spacing={2}>
-            <Typography sx={fieldStyle}>
-              <span style={labelStyle}>Resource Update: </span>
-              {resource}
-            </Typography>
-            <Typography sx={fieldStyle}>
-              <span style={labelStyle}>CR: </span> {customerRequest}/{customerRequestOne}
-            </Typography>
-            <Typography sx={fieldStyle}>
-              <span style={labelStyle}>SR: </span> {serviceRequest}/{serviceRequestOne}
-            </Typography>
-          </Stack>
+        <Grid item xs={12} md={3} sx={{ mt: 1 }}>
+          <Typography sx={fieldStyle} style={{ minHeight: 150 }}>
+            <span style={labelStyle}>Resource Update: </span> {resource}
+          </Typography>
+        </Grid>
+        <Grid item xs={12} md={3} sx={{ mt: 1 }}>
+          <Typography sx={fieldStyle} style={{ minHeight: 75, overflow: 'hidden' }}>
+            <span style={labelStyle}>CR: </span>
+            {customerRequest}/{customerRequestOne}
+          </Typography>
+          <Typography sx={fieldStyle} style={{ minHeight: 75, overflow: 'hidden' }}>
+            <span style={labelStyle}>SR: </span> {serviceRequest}/{serviceRequestOne}
+          </Typography>
         </Grid>
       </Grid>
-      <Typography sx={fieldStyle}>
+      <Typography>
         <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-          {risk.map((risk, index) => (
-            <div
-              key={risk.risk_mitigation_id}
-              style={{ display: 'flex', flexDirection: 'column', marginRight: '20px' }}
-            >
-              {risk.riskNo && (
-                <div>
-                  <span style={{ color: '#FF8080', fontWeight: 'bold' }}>Risk: </span>
+          <Grid container direction="row" spacing={2} sx={{ marginBottom: 2 }}>
+            {risk.map((risk, index) => (
+              <Grid item key={index} xs={12} md={4} sx={{ mt: 0.5 }}>
+                <Typography sx={fieldStyle}>
+                  <span style={{ color: '#1E90FF', fontWeight: 'bold' }}>Risk: </span>
                   {risk.riskNo}
-                </div>
-              )}
-              {risk.riskPlan && (
-                <div>
-                  <span style={{ color: '#4BB543', fontWeight: 'bold' }}>Mitigation Plan: </span>
+                  <br />
+                  <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>Mitigation Plan: </span>
                   {risk.riskPlan}
-                </div>
-              )}
-            </div>
-          ))}
-          {/* Conditionally render "Risk" and "Mitigation Plan" here */}
+                </Typography>
+              </Grid>
+            ))}
+          </Grid>
           {!risk.length && (
-            <div style={{ display: 'flex', flexDirection: 'column', marginRight: '20px' }}>
-              <div>
-                <span style={{ color: '#FF8080', fontWeight: 'bold' }}>Risk: </span>
-                <span style={{ color: '#FF8080', fontWeight: 'bold', marginLeft: 150 }}>Risk: </span>
-                <span style={{ color: '#FF8080', fontWeight: 'bold', marginLeft: 150 }}>Risk: </span>
-              </div>
-              <div>
-                <span style={{ color: '#4BB543', fontWeight: 'bold' }}>Mitigation Plan: </span>
-                <span style={{ color: '#4BB543', fontWeight: 'bold', marginLeft: 67 }}>Mitigation Plan: </span>
-                <span style={{ color: '#4BB543', fontWeight: 'bold', marginLeft: 67 }}>Mitigation Plan: </span>
-              </div>
-            </div>
+            <Grid container direction="row" spacing={2} sx={{ marginBottom: 2 }}>
+              {[1, 2, 3].map((_, index) => (
+                <Grid item key={index} xs={12} md={4} sx={{ mt: 1 }}>
+                  <Typography sx={fieldStyle}>
+                    <div>
+                      <span style={{ color: '#1E90FF', fontWeight: 'bold' }}>Risk: </span>
+                      {/* <span style={{ color: '#1E90FF', fontWeight: 'bold', marginLeft: 150 }}>Risk: </span>
+                      <span style={{ color: '#1E90FF', fontWeight: 'bold', marginLeft: 150 }}>Risk: </span> */}
+                    </div>
+                    <div>
+                      <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>Mitigation Plan: </span>
+                      {/* <span style={{ color: '#4CAF50', fontWeight: 'bold', marginLeft: 67 }}>Mitigation Plan: </span>
+                      <span style={{ color: '#4CAF50', fontWeight: 'bold', marginLeft: 67 }}>Mitigation Plan: </span> */}
+                    </div>
+                  </Typography>
+                </Grid>
+              ))}
+            </Grid>
           )}
         </div>
       </Typography>
       <Box sx={{ mt: 1, ml: 1, display: 'flex', justifyContent: 'flex-end' }}>
+        <Button sx={{ color: 'red', backgroundColor: '#F3E5F5', mr: 75 }} onClick={() => handleDeleteClicks()}>
+          Dispatch Action Points
+        </Button>
+        <Dialog open={opens} onClose={handleCloses}>
+          <DialogTitle>Confirm</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              The Action points have been successfully dispatched to all meeting attendees
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloses} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={actionMail} color="primary">
+              Dispatch Action Points
+            </Button>
+          </DialogActions>
+        </Dialog>
         <Button
-          size="small"
-          sx={{ mr: 1, backgroundColor: '#B2C8BA' }}
-          variant="contained"
+          sx={{ color: '#4CAF50', backgroundColor: '#F3E5F5', mr: 1 }}
+          // sx={{ mr: 1, backgroundColor: '#4CAF50', color: 'white' }} // Green color,
+          // variant="contained"
           onClick={() => backNavigate()}
         >
           Back
         </Button>
-        <Button size="small" sx={{ mr: 1 }} variant="contained" onClick={() => handleDeleteClick()}>
+        <Button sx={{ color: '#1E90FF', backgroundColor: '#F3E5F5', mr: 1 }} onClick={() => handleDeleteClick()}>
           Action Points
         </Button>
-        <Button
-          variant="contained"
-          size="small"
-          onClick={handleOpenPopOver}
-          sx={{
-            mr: 1,
-            backgroundColor: '  #ffcccc',
-            color: 'black',
-            height: 30
-            // '@media (max-width: 768px)': {
-            //   width: 120,
-            //   ml: 83,
-            //   mt: -106
-            // }
-          }}
-        >
+        <Button onClick={handleOpenPopOver} sx={{ color: '#008080', backgroundColor: '#F3E5F5', mr: 1 }}>
           List
         </Button>
-        <Button size="small" sx={{ mr: 1, backgroundColor: '#666666' }} variant="contained" onClick={previousData}>
-          PREV
-        </Button>
-        <Button size="small" sx={{ backgroundColor: '#5900a6' }} variant="contained" onClick={updateData}>
-          NEXT
-        </Button>
+        <IconButton
+          sx={{ mr: 1, backgroundColor: '#F3E5F5', color: '#666666' }}
+          onClick={previousData}
+          disabled={isPreviousDisabled}
+        >
+          <KeyboardDoubleArrowLeftIcon />
+        </IconButton>
+        <IconButton
+          sx={{ color: '#9C27B0', backgroundColor: '#F3E5F5', mr: 1 }}
+          onClick={updateData}
+          disabled={isNextDisabled}
+        >
+          <KeyboardDoubleArrowRightIcon />
+        </IconButton>
       </Box>
       <Dialog open={open} onClose={handleClose} maxWidth="md">
         <DialogTitle>Action Points</DialogTitle>
         <DialogContent>
           <Stack direction="row" spacing={2}>
             <DialogContentText>
-              {/* <TextField
-              sx={{ mt: 2, width: 400 }}
-              rows={4}
-              multiline
-              label="Action Points"
-              value={actionPoints}
-              onChange={(e) => setActionPoints(e.target.value)}
-            />{' '} */}
               <Typography sx={{ width: 200, mt: 1.5 }}>
                 <span style={{ color: '#4a4a4a', fontWeight: 'bold' }}> Previous Week Points: </span>
                 {actions}
@@ -675,6 +824,25 @@ export default function SupportProjectReview() {
             <div>Loading projects...</div>
           )}
         </Popover>
+        {showMessage && (
+          <div
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              textAlign: 'center',
+              padding: '20px',
+              background: '#87CEEB',
+              boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            <p>The review for the Support project has been successfully concluded.</p>
+            <Button sx={{ color: 'red', mr: 1 }} onClick={closeMessage}>
+              Close
+            </Button>{' '}
+          </div>
+        )}
       </div>
     </>
   );

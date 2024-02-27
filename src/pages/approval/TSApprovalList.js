@@ -19,7 +19,8 @@ import {
   Container,
   CardContent,
   Stack,
-  TableFooter
+  TableFooter,
+  CircularProgress
 } from '@mui/material';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
@@ -169,7 +170,7 @@ export default function TSApprovalList() {
   const [filterName, setFilterName] = React.useState('');
   const [comments, setComments] = React.useState('');
   const timesheetIdDetails = useSelector(getTimesheetIdDetailsFromTSAppr);
-
+  const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -223,6 +224,7 @@ export default function TSApprovalList() {
 
   const handleSubmit = (value) => {
     setIsLoading(true);
+    setLoading(true);
     let timesheetId = null;
 
     const appVal = 'Approved Successfully';
@@ -286,6 +288,9 @@ export default function TSApprovalList() {
             </MIconButton>
           )
         });
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -302,6 +307,24 @@ export default function TSApprovalList() {
 
   return (
     <Page title={title}>
+      {loading && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999
+          }}
+        >
+          <CircularProgress />
+        </div>
+      )}{' '}
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
           heading={title}

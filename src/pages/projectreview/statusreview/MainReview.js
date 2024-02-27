@@ -1,4 +1,15 @@
-import { Container, FormControl, FormControlLabel, Grid, Radio, RadioGroup, Stack, TextField } from '@mui/material';
+import {
+  Container,
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  Grid,
+  Radio,
+  RadioGroup,
+  Stack,
+  TextField,
+  Card
+} from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
@@ -65,58 +76,66 @@ export default function MainReview() {
           heading={title}
           links={[{ name: 'Dashboard', href: PATH_DASHBOARD.general.root }, { name: 'Status Review' }]}
         />
-
-        <Stack spacing={2}>
-          <FormControl>
-            <RadioGroup
-              aria-labelledby="demo-status-review"
-              defaultValue="Support"
-              name="radio-button-status-review"
-              value={selectedRadio}
-              onChange={handleRadioChange}
-            >
-              <FormControlLabel value="Support" control={<Radio />} label="Support" />
-              <FormControlLabel value="Fixed Bid" control={<Radio />} label="Fixed Bid" />
-            </RadioGroup>
-          </FormControl>
-          {selectedRadio === 'Support' ? (
-            <Grid spacing={20}>
-              <TextField
-                style={{ width: '60px' }}
-                size="small"
-                id="outlined-number"
-                label="Week"
-                type="number"
-                value={weekNumber}
-                onChange={(e) => setWeekNumber(e.target.value)}
-                InputLabelProps={{
-                  shrink: true
-                }}
-              />
-              <TextField
-                style={{ width: '100px', marginLeft: 10 }}
-                size="small"
-                id="outlined-number"
-                label="Year"
-                type="number"
-                value={year}
-                disabled
-              />
-              <LoadingButton
-                style={{ marginLeft: '5%' }}
-                type="submit"
-                size="small"
-                variant="contained"
-                component={RouterLink}
-                // to={PATH_DASHBOARD.review.supportProjectReview}
-                to={`${PATH_DASHBOARD.review.supportProjectReview}/${weekNumber}/${year}`}
-              >
-                START
-              </LoadingButton>
-            </Grid>
-          ) : (
-            <Grid spacing={20}>
-              {/* <TextField
+        <Grid container spacing={3}>
+          <Grid item xs={30} md={1}>
+            <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
+              {/* {touched.avatarUrl && errors.avatarUrl} */}
+            </FormHelperText>
+          </Grid>
+          <Grid item xs={19} md={5}>
+            <Card sx={{ p: 4, mt: 1 }}>
+              <Stack spacing={2}>
+                <FormControl>
+                  <RadioGroup
+                    aria-labelledby="demo-status-review"
+                    defaultValue="Support"
+                    name="radio-button-status-review"
+                    value={selectedRadio}
+                    onChange={handleRadioChange}
+                  >
+                    <FormControlLabel value="Support" control={<Radio />} label="Support" />
+                    <FormControlLabel value="Fixed Bid" control={<Radio />} label="Fixed Bid" />
+                  </RadioGroup>
+                </FormControl>
+                {selectedRadio === 'Support' ? (
+                  <Grid spacing={20}>
+                    <TextField
+                      style={{ width: '60px' }}
+                      size="small"
+                      id="outlined-number"
+                      label="Week"
+                      type="number"
+                      value={weekNumber}
+                      onChange={(e) => setWeekNumber(e.target.value)}
+                      InputLabelProps={{
+                        shrink: true
+                      }}
+                    />
+                    <TextField
+                      style={{ width: '100px', marginLeft: 10 }}
+                      size="small"
+                      id="outlined-number"
+                      label="Year"
+                      type="number"
+                      value={year}
+                      disabled
+                    />
+                    <LoadingButton
+                      style={{ marginLeft: '5%' }}
+                      type="submit"
+                      size="small"
+                      variant="contained"
+                      sx={{ backgroundColor: '#1E90FF' }}
+                      component={RouterLink}
+                      // to={PATH_DASHBOARD.review.supportProjectReview}
+                      to={`${PATH_DASHBOARD.review.supportProjectReview}/${weekNumber}/${year}`}
+                    >
+                      START
+                    </LoadingButton>
+                  </Grid>
+                ) : (
+                  <Grid spacing={20}>
+                    {/* <TextField
                 style={{ width: '60px' }}
                 size="small"
                 id="outlined-number"
@@ -128,41 +147,45 @@ export default function MainReview() {
                   shrink: true
                 }}
               /> */}
-              <TextField
-                style={{ width: '60px' }}
-                size="small"
-                id="outlined-number"
-                label="Week"
-                type="number"
-                value={weekNumber}
-                onChange={(e) => setWeekNumber(e.target.value)}
-                InputLabelProps={{
-                  shrink: true
-                }}
-              />
-              <TextField
-                style={{ width: '100px', marginLeft: 10 }}
-                size="small"
-                id="outlined-number"
-                label="Year"
-                type="number"
-                value={year}
-                disabled
-              />
-              <LoadingButton
-                style={{ marginLeft: '5%' }}
-                type="submit"
-                size="small"
-                variant="contained"
-                component={RouterLink}
-                // to={PATH_DASHBOARD.review.fixedStatus}
-                to={`${PATH_DASHBOARD.review.fixedStatus}/${weekNumber}/${year}`}
-              >
-                START
-              </LoadingButton>
-            </Grid>
-          )}
-        </Stack>
+                    <TextField
+                      style={{ width: '60px' }}
+                      size="small"
+                      id="outlined-number"
+                      label="Week"
+                      type="number"
+                      value={weekNumber}
+                      onChange={(e) => setWeekNumber(e.target.value)}
+                      InputLabelProps={{
+                        shrink: true
+                      }}
+                    />
+                    <TextField
+                      style={{ width: '100px', marginLeft: 10 }}
+                      size="small"
+                      id="outlined-number"
+                      label="Year"
+                      type="number"
+                      value={year}
+                      disabled
+                    />
+                    <LoadingButton
+                      style={{ marginLeft: '5%' }}
+                      type="submit"
+                      size="small"
+                      variant="contained"
+                      sx={{ backgroundColor: '#1E90FF' }}
+                      component={RouterLink}
+                      // to={PATH_DASHBOARD.review.fixedStatus}
+                      to={`${PATH_DASHBOARD.review.fixedStatus}/${weekNumber}/${year}`}
+                    >
+                      START
+                    </LoadingButton>
+                  </Grid>
+                )}
+              </Stack>
+            </Card>
+          </Grid>
+        </Grid>
       </Container>
     </Page>
   );

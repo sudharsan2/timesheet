@@ -90,7 +90,7 @@ export const getPostProjectAsync = createAsyncThunk(
   async (_payload, { rejectWithValue }) => {
     try {
       const response = await api.methods.getData(
-        `https://techstephub.focusrtech.com:6060/techstep/auth/service/getActiveProjectOfAnEmp?id=${_payload}`
+        `https://techstephub.focusrtech.com:3030/techstep/auth/service/getActiveProjectOfAnEmp?id=${_payload}`
       );
 
       return response.data;

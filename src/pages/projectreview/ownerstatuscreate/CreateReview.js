@@ -170,7 +170,7 @@ export default function CreateReview() {
 
   useEffect(() => {
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getAllProjects`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getAllProjects`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -209,7 +209,7 @@ export default function CreateReview() {
     console.log('standardWeekNumber:', standardWeekNumber);
     axios
       .get(
-        `https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/getSupportdetails/${projectName}/${standardWeekNumber}/${year}`,
+        `https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/getSupportdetails/${projectName}/${standardWeekNumber}/${year}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -284,18 +284,84 @@ export default function CreateReview() {
     }
   ]);
 
+  const [newModuleCount, setNewModuleCount] = useState('');
+  const [newReported, setNewReported] = useState('');
+
+  // ... (other code)
+
+  const handleNewModuleCountChange = (event) => {
+    setNewModuleCount(event.target.value);
+  };
+
+  const handleNewReportedChange = (event) => {
+    setNewReported(event.target.value);
+  };
+
+  const addNewRow = () => {
+    // Perform validation
+    if (newModuleCount < 0) {
+      // Display an error message or handle the error
+      console.error('Cannot add a row with a negative module count.');
+      return;
+    }
+
+    const totalModules = calculateTotal();
+    if (newReported > totalModules) {
+      // Display an error message or handle the error
+      console.error('Reported value cannot be greater than the total of module counts.');
+      return;
+    }
+
+    // If validation passes, add the new row
+    const newRow = {
+      projectModule: newModuleCount,
+      moduleCount: newReported
+    };
+
+    setTableData((prevData) => [...prevData, newRow]);
+  };
+
+  // const handleInputChangeTable = (index, field, value) => {
+  //   const updatedData = [...tableData];
+  //   if (field === 'moduleCount') {
+  //     value = parseFloat(value); // Convert the input to a number
+  //     const reported = parseFloat(projRepoted) || 0;
+  //     value = isNaN(value) ? '' : Math.min(reported, value); // Limit moduleCount to reported value
+  //   }
+  //   updatedData[index][field] = value;
+  //   setTableData(updatedData);
+
+  //   const total = calculateTotal();
+  //   setModuleTotal(total);
+  //   setProjClosed(calculateProjClosed()); // Update projClosed
+  // };
+
   const handleInputChangeTable = (index, field, value) => {
     const updatedData = [...tableData];
+
     if (field === 'moduleCount') {
       value = parseFloat(value); // Convert the input to a number
       const reported = parseFloat(projRepoted) || 0;
-      value = isNaN(value) ? '' : Math.min(reported, value); // Limit moduleCount to reported value
+
+      // Limit moduleCount to reported value
+      value = isNaN(value) ? '' : Math.min(reported, value);
     }
+
     updatedData[index][field] = value;
     setTableData(updatedData);
 
-    const total = calculateTotal();
-    setModuleTotal(total);
+    // Update projTotal to ensure the sum of moduleTotal equals projRepoted
+    const projTotal = calculateTotal();
+
+    // If projTotal is greater than reported, adjust the last moduleTotal to make them equal
+    if (projTotal > parseFloat(projRepoted)) {
+      const lastRowIndex = updatedData.length - 1;
+      const adjustment = parseFloat(projRepoted) - projTotal + updatedData[lastRowIndex].moduleTotal;
+      updatedData[lastRowIndex].moduleTotal += adjustment;
+      setTableData(updatedData);
+    }
+
+    setModuleTotal(calculateTotal());
     setProjClosed(calculateProjClosed()); // Update projClosed
   };
 
@@ -356,14 +422,26 @@ export default function CreateReview() {
     return total;
   };
 
+  // const calculateProjClosed = () => {
+  //   const repoted = parseFloat(projRepoted); // Convert to a number
+  //   const module = parseFloat(totalModule); // Convert to a number
+
+  //   if (!isNaN(repoted) && !isNaN(module)) {
+  //     return repoted - module; // Calculate projClosed
+  //   } else {
+  //     return ''; // Handle invalid input
+  //   }
+  // };
+
   const calculateProjClosed = () => {
     const repoted = parseFloat(projRepoted); // Convert to a number
     const module = parseFloat(totalModule); // Convert to a number
 
     if (!isNaN(repoted) && !isNaN(module)) {
-      return repoted - module; // Calculate projClosed
+      const projClosedValue = repoted - module; // Calculate projClosed
+      return Math.max(projClosedValue, 0); // Ensure projClosed is non-negative
     } else {
-      return ''; // Handle invalid input
+      return 0; // Handle invalid input
     }
   };
 
@@ -431,7 +509,7 @@ export default function CreateReview() {
 
   useEffect(() => {
     axios
-      .get(`https://techstephub.focusrtech.com:6060/techstep/api/AllProject/Service/getListOfModules`, {
+      .get(`https://techstephub.focusrtech.com:3030/techstep/api/AllProject/Service/getListOfModules`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -453,20 +531,91 @@ export default function CreateReview() {
 
   console.log('projid', projeId);
 
+  // const updateStatus = async () => {
+  //   setLoading(true);
+  //   try {
+  //     // Validate form data using Yup
+
+  //     if (!projHighlights) {
+  //       throw new Error('Please fill in the Project Highlights field.');
+  //     }
+
+  //     const moduleTotal = calculateTotal();
+
+  //     const updatedTableData = tableData.map((rowData) => ({
+  //       ...rowData,
+  //       moduleTotal: moduleTotal
+  //     }));
+
+  //     // If validation succeeds, make the API request
+  //     const response = await axios.post(
+  //       'https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/createUpdateSupportProject',
+  //       {
+  //         proj_Id: projeId || 0,
+  //         projectName: String(projectName),
+  //         projectManager: String(projManagerName),
+  //         repoted: Number(projRepoted),
+  //         closed: Number(projClosed),
+  //         no_Sr: Number(projNoCr),
+  //         no_SR_Reff: String(projNoSrReff),
+  //         no_Cr: Number(projNoCr),
+  //         no_CR_Reff: String(projNoCrReff),
+  //         projectHighlights: String(projHighlights),
+  //         resource: String(projResource),
+  //         moduleTotal: Number(totalModule),
+  //         openTicketSummary: updatedTableData,
+  //         riskMitigation: resourceData
+  //       },
+  //       {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Authorization: 'Bearer ' + token
+  //         }
+  //       }
+  //     );
+
+  //     console.log('Ok', response.data);
+  //     setTimeout(() => {
+  //       navigate(PATH_DASHBOARD.review.findProject);
+  //     }, 1000);
+  //     setLoading(false);
+  //     enqueueSnackbar('Submitted Successfully', {
+  //       autoHideDuration: 2000,
+  //       variant: 'success'
+  //     });
+  //     setSuccess(true);
+  //     console.log('response status', response.status);
+  //   } catch (error) {
+  //     if (error.message === 'Please fill in the Project Highlights field.') {
+  //       // Handle specific error message for missing projectHighlights
+  //       enqueueSnackbar(error.message, {
+  //         autoHideDuration: 2000,
+  //         variant: 'error'
+  //       });
+  //     } else {
+  //       // Handle other errors
+  //       console.error('Error:', error);
+  //     }
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const updateStatus = async () => {
     setLoading(true);
     try {
       // Validate form data using Yup
-      await NewUserSchema.validate({
-        projectName: projectName,
-        projectManager: projManagerName
-      });
 
-      for (const rowData of tableData) {
-        await TableDataSchema.validate(rowData, { abortEarly: false });
+      if (!projHighlights) {
+        throw new Error('Please fill in the Project Highlights field.');
       }
 
       const moduleTotal = calculateTotal();
+
+      // Validate if totalModule exceeds projRepoted
+      if (moduleTotal > parseFloat(projRepoted)) {
+        throw new Error('Total module count cannot exceed the reported value.');
+      }
 
       const updatedTableData = tableData.map((rowData) => ({
         ...rowData,
@@ -475,7 +624,7 @@ export default function CreateReview() {
 
       // If validation succeeds, make the API request
       const response = await axios.post(
-        'https://techstephub.focusrtech.com:6060/techstep/api/Project/Service/createUpdateSupportProject',
+        'https://techstephub.focusrtech.com:3030/techstep/api/Project/Service/createUpdateSupportProject',
         {
           proj_Id: projeId || 0,
           projectName: String(projectName),
@@ -512,11 +661,13 @@ export default function CreateReview() {
       setSuccess(true);
       console.log('response status', response.status);
     } catch (error) {
-      if (error.name === 'ValidationError') {
-        // Yup validation error
-        console.log('Validation error:', error.message);
+      if (
+        error.message === 'Please fill in the Project Highlights field.' ||
+        error.message === 'Total module count cannot exceed the reported value.'
+      ) {
+        // Handle specific error messages
         enqueueSnackbar(error.message, {
-          autoHideDuration: 2000,
+          autoHideDuration: 3000,
           variant: 'error'
         });
       } else {
@@ -525,13 +676,35 @@ export default function CreateReview() {
         if (error.response) {
           console.log('Error response status', error.response.status);
           console.log('Error response data', error.response.data.message);
-          enqueueSnackbar(error.response.data.message, {
-            autoHideDuration: 2000,
-            variant: 'error'
-          });
+          if (error.response.status === 400 && error.response.data.message) {
+            // Check if the error is related to projectHighlights size constraint
+            if (error.response.data.message.includes('projectHighlights')) {
+              enqueueSnackbar(error.response.data.message, {
+                autoHideDuration: 3000,
+                variant: 'error'
+              });
+            } else {
+              // Handle other types of errors in the response
+              enqueueSnackbar('size must be between 0 and 1000.', {
+                autoHideDuration: 3000,
+                variant: 'error'
+              });
+            }
+          } else {
+            // Handle other types of errors here
+            enqueueSnackbar('size must be between 0 and 1000.', {
+              autoHideDuration: 3000,
+              variant: 'error'
+            });
+          }
         } else {
+          // Network error or request was canceled
           console.log('Network error or request was canceled:', error.message);
           // Handle other types of errors here
+          enqueueSnackbar('size must be between 0 and 1000.', {
+            autoHideDuration: 3000,
+            variant: 'error'
+          });
         }
       }
       setLoading(false);
@@ -666,7 +839,7 @@ export default function CreateReview() {
                   disabled
                   required
                   fullWidth
-                  label="Project Owner Name"
+                  label="Project Manager"
                   value={projManagerName}
                   onChange={(e) => setProjManagerName(e.target.value)}
                   // {...getFieldProps('proj_Name')}
@@ -874,7 +1047,7 @@ export default function CreateReview() {
                         onChange={(e) => setTotalModule(e.target.value)}
                       />
                     </Typography>
-                    <Button sx={{ mt: -5, ml: 32 }} onClick={addRow}>
+                    <Button sx={{ mt: -5, ml: 36, width: 50 }} onClick={addRow}>
                       Add
                     </Button>
                   </Stack>

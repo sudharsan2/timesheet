@@ -272,7 +272,7 @@ export default function UserCreate() {
         <HeaderBreadcrumbs
           heading={title}
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
+            { name: 'Dashboard', href: PATH_DASHBOARD.general.root },
             { name: 'User Management', href: PATH_DASHBOARD.admin.userManagement },
             { name: 'User Create' }
           ]}
@@ -482,7 +482,7 @@ export default function UserCreate() {
                           required
                           fullWidth
                           label="DOB"
-                          value={values.date_of_birth}
+                          value={values.date_of_birth || null}
                           inputFormat="dd/MM/yyyy"
                           //   disablePast
                           onChange={(newValue) => {
@@ -515,7 +515,7 @@ export default function UserCreate() {
                           required
                           fullWidth
                           label="DOJ"
-                          value={values.date_of_joining}
+                          value={values.date_of_joining || null}
                           inputFormat="dd/MM/yyyy"
                           //   disablePast
                           onChange={(newValue) => {

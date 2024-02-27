@@ -94,10 +94,12 @@ export const PATH_DASHBOARD = {
     approveManager: path(ROOTS_DASHBOARD, '/travel/approve-manager'),
     reqWFH: path(ROOTS_DASHBOARD, '/travel/req-wfh'),
     reqForm: path(ROOTS_DASHBOARD, '/travel/req-form'),
+    reqEdit: path(ROOTS_DASHBOARD, '/travel/req-Edit'),
     requestApproval: path(ROOTS_DASHBOARD, '/travel/request-approval'),
     statusApproval: path(ROOTS_DASHBOARD, '/travel/status-approval'),
     eodStatus: path(ROOTS_DASHBOARD, '/travel/eod-status'),
-    reviewStatus: path(ROOTS_DASHBOARD, '/travel/reviewed-status')
+    reviewStatus: path(ROOTS_DASHBOARD, '/travel/reviewed-status'),
+    taskApproval: path(ROOTS_DASHBOARD, '/travel/task-approval')
   },
 
   review: {
